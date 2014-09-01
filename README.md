@@ -154,12 +154,12 @@ $http = Http\HttpFactory::getHttp(null, 'stream');
 
 ## Installation via Composer
 
-Add `"joomla/http": "~1.0"` to the require block in your composer.json and then run `composer install`.
+Add `"joomla/http": "2.0.*@dev"` to the require block in your composer.json and then run `composer install`.
 
 ```json
 {
 	"require": {
-		"joomla/http": "~1.0"
+		"joomla/http": "2.0.*@dev"
 	}
 }
 ```
@@ -167,5 +167,5 @@ Add `"joomla/http": "~1.0"` to the require block in your composer.json and then 
 Alternatively, you can simply run the following from the command line:
 
 ```sh
-composer require joomla/http "~1.0"
+composer require joomla/http "2.0.*@dev"
 ```
