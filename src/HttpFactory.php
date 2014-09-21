@@ -20,7 +20,7 @@ class HttpFactory
 	 *
 	 * @param   array         $options   Client options array.
 	 * @param   string|array  $adapters  Adapter (string) or queue of adapters (array) to use for communication.
-	 * @param   string        $class     Class name of the object to instantiate
+	 * @param   string        $class     Class name of the object to instantiate, must be the full class name (supported @since __DEPLOY_VERSION__)
 	 *
 	 * @return  HttpInterface
 	 *
@@ -68,6 +68,7 @@ class HttpFactory
 		foreach ($availableAdapters as $adapter)
 		{
 			/* @var  $class  TransportInterface */
+			// TODO - Extend this to enable custom namespaces
 			$class = 'Joomla\\Http\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
