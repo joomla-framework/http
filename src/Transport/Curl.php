@@ -54,7 +54,7 @@ class Curl implements TransportInterface
 	 * @param   integer       $timeout    Read timeout in seconds.
 	 * @param   string        $userAgent  The optional user agent string to send with the request.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \RuntimeException
@@ -178,16 +178,13 @@ class Curl implements TransportInterface
 	 *                            as a string if the response has no errors.
 	 * @param   array   $info     The cURL request information.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \UnexpectedValueException
 	 */
 	protected function getResponse($content, $info)
 	{
-		// Create the response object.
-		$return = new Response;
-
 		// Get the number of redirects that occurred.
 		$redirects = isset($info['redirect_count']) ? $info['redirect_count'] : 0;
 
@@ -199,7 +196,7 @@ class Curl implements TransportInterface
 		$response = explode("\r\n\r\n", $content, 2 + $redirects);
 
 		// Set the body for the response.
-		$return->body = array_pop($response);
+		$body = array_pop($response);
 
 		// Get the last set of response headers as an array.
 		$headers = explode("\r\n", array_pop($response));
@@ -211,7 +208,7 @@ class Curl implements TransportInterface
 
 		if (is_numeric($code))
 		{
-			$return->code = (int) $code;
+			$code = (int) $code;
 		}
 
 		// No valid response code was detected.
@@ -220,11 +217,14 @@ class Curl implements TransportInterface
 			throw new \UnexpectedValueException('No HTTP response code found.');
 		}
 
+		// Create the response object.
+		$return = new Response($code, array(), $body);
+
 		// Add the response headers to the response object.
 		foreach ($headers as $header)
 		{
 			$pos = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
+			$return->setHeader(trim(substr($header, 0, $pos)), trim(substr($header, ($pos + 1))));
 		}
 
 		return $return;
