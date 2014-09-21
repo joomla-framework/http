@@ -34,9 +34,13 @@ class Response implements ResponseInterface
 	public $body;
 
 	/**
+	 * Constructor
+	 *
 	 * @param   string  $statusCode  The response status code (e.g. 200)
 	 * @param   array   $headers     The response headers
 	 * @param   string  $body        The body of the response
+	 *
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function __construct($statusCode, array $headers = array(), $body = null)
 	{
@@ -66,7 +70,7 @@ class Response implements ResponseInterface
 	 *
 	 * @return  array   Returns an associative array of the message's headers.
 	 *
-	 * @since  2.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function getHeaders()
 	{
@@ -80,9 +84,9 @@ class Response implements ResponseInterface
 	 * The array keys MUST be a string. The array values must be either a
 	 * string or an array of strings.
 	 *
-	 * @param array $headers Headers to set.
+	 * @param   array  $headers  Headers to set.
 	 *
-	 * @return self Returns the message.
+	 * @return  Response  Instance of $this to allow chaining.
 	 */
 	public function setHeaders(array $headers = array())
 	{
@@ -103,11 +107,12 @@ class Response implements ResponseInterface
 	 * comma, this method provides a Boolean argument that can be used to
 	 * retrieve the associated header values as an array of strings.
 	 *
-	 * @param string $header  Case-insensitive header name.
-	 * @param bool   $asArray Set to true to retrieve the header value as an
-	 *                        array of strings.
+	 * @param   string   $header   Case-insensitive header name.
+	 * @param   boolean  $asArray  Set to true to retrieve the header value as an array of strings.
 	 *
-	 * @return array|string
+	 * @return  array|string
+	 *
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function getHeader($header, $asArray = false)
 	{
@@ -130,7 +135,10 @@ class Response implements ResponseInterface
 	 * @param   string        $header Header name
 	 * @param   string|array  $value  Header value(s)
 	 *
-	 * @return self Returns the message.
+	 * @return  ResponseInterface  Instance of $this to allow chaining.
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 * @throws  \InvalidArgumentException
 	 */
 	public function setHeader($header, $value)
 	{
@@ -141,20 +149,23 @@ class Response implements ResponseInterface
 			case 'string':
 				$this->headers[$name] = array(trim($value));
 				break;
+
 			case 'integer':
 			case 'double':
 				$this->headers[$name] = array((string) $value);
 				break;
+
 			case 'array':
 				foreach ($value as &$v)
 				{
 					$v = trim($v);
 				}
+
 				$this->headers[$name] = $value;
 				break;
+
 			default:
-				throw new \InvalidArgumentException('Invalid header value '
-					. 'provided: ' . var_export($value, true));
+				throw new \InvalidArgumentException('Invalid header value provided: ' . var_export($value, true));
 		}
 
 		return $this;
@@ -165,7 +176,7 @@ class Response implements ResponseInterface
 	 *
 	 * @return  string
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getStatusCode()
 	{
@@ -177,7 +188,7 @@ class Response implements ResponseInterface
 	 *
 	 * @return  string|null
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getBody()
 	{
@@ -189,12 +200,14 @@ class Response implements ResponseInterface
 	 *
 	 * @param   string|null  $body  Set the body
 	 *
-	 * @return  null
+	 * @return  Response  Instance of $this to allow chaining.
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function setBody($body)
 	{
 		$this->body = $body;
+
+		return $this;
 	}
 }

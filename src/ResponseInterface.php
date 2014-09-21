@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -11,7 +11,7 @@ namespace Joomla\Http;
 /**
  * HTTP response class interface.
  *
- * @since  2.0
+ * @since  __DEPLOY_VERSION__
  */
 interface ResponseInterface
 {
@@ -20,7 +20,7 @@ interface ResponseInterface
 	 *
 	 * @return  string
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getStatusCode();
 
@@ -29,7 +29,7 @@ interface ResponseInterface
 	 *
 	 * @return  string|null
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getBody();
 
@@ -44,9 +44,9 @@ interface ResponseInterface
 	 *         echo $name . ": " . implode(", ", $values);
 	 *     }
 	 *
-	 * @return  array   Returns an associative array of the message's headers.
+	 * @return  array  Returns an associative array of the message's headers.
 	 *
-	 * @since  2.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	public function getHeaders();
 
@@ -59,11 +59,12 @@ interface ResponseInterface
 	 * comma, this method provides a Boolean argument that can be used to
 	 * retrieve the associated header values as an array of strings.
 	 *
-	 * @param string $header  Case-insensitive header name.
-	 * @param bool   $asArray Set to true to retrieve the header value as an
-	 *                        array of strings.
+	 * @param   string   $header   Case-insensitive header name.
+	 * @param   boolean  $asArray  Set to true to retrieve the header value as an array of strings.
 	 *
-	 * @return array|string
+	 * @return  array|string
+	 *
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function getHeader($header, $asArray = false);
 
@@ -76,7 +77,9 @@ interface ResponseInterface
 	 * @param   string        $header Header name
 	 * @param   string|array  $value  Header value(s)
 	 *
-	 * @return self Returns the message.
+	 * @return  ResponseInterface  Instance of $this to allow chaining.
+	 *
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function setHeader($header, $value);
 }

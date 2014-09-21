@@ -95,7 +95,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -111,7 +111,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -127,7 +127,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -144,7 +144,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -161,7 +161,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -178,7 +178,7 @@ class Http implements HttpInterface
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 * @param   mixed    $data     Either an associative array or a string to be sent with the request.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -194,7 +194,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -211,7 +211,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of name-value pairs to include in the header of the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
@@ -229,7 +229,7 @@ class Http implements HttpInterface
 	 * @param   array    $headers  An array of request headers to send with the request.
 	 * @param   integer  $timeout  Read timeout in seconds.
 	 *
-	 * @return  \Joomla\Http\ResponseInterface
+	 * @return  ResponseInterface
 	 *
 	 * @since   1.0
 	 */
