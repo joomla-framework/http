@@ -25,7 +25,7 @@ class Response implements ResponseInterface
 	 * @var    array  Response headers.
 	 * @since  1.0
 	 */
-	public $headers = array();
+	private $headers = array();
 
 	/**
 	 * @var    string  Server response body.
