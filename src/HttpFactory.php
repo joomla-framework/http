@@ -85,24 +85,48 @@ class HttpFactory
 	/**
 	 * Get the http transport handlers
 	 *
+	 * @param   array  $paths  An array of custom lookup paths to search for transport objects in (supported @since __DEPLOY_VERSION__)
+	 *
 	 * @return  array  An array of available transport handlers
 	 *
 	 * @since   1.0
 	 */
-	public static function getHttpTransports()
+	public static function getHttpTransports(array $paths = array())
 	{
 		$names = array();
+
+		// First, pull transports from user defined paths
+		foreach ($paths as $path)
+		{
+			$iterator = new \DirectoryIterator($path);
+
+			/*  @var  $file  \DirectoryIterator */
+			foreach ($iterator as $file)
+			{
+				$fileName  = $file->getFilename();
+				$transport = substr($fileName, 0, strrpos($fileName, '.'));
+
+				// Only load for php files.
+				if ($file->isFile() && $file->getExtension() == 'php' && !in_array($transport, $names))
+				{
+					$names[] = $transport;
+				}
+			}
+		}
+
+		// Now add our transports if not already defined
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
 		/*  @var  $file  \DirectoryIterator */
 		foreach ($iterator as $file)
 		{
-			$fileName = $file->getFilename();
+			$fileName  = $file->getFilename();
+			$transport = substr($fileName, 0, strrpos($fileName, '.'));
 
 			// Only load for php files.
-			if ($file->isFile() && $file->getExtension() == 'php')
+			if ($file->isFile() && $file->getExtension() == 'php' && !in_array($transport, $names))
 			{
-				$names[] = substr($fileName, 0, strrpos($fileName, '.'));
+				$names[] = $transport;
 			}
 		}
 
