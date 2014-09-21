@@ -42,16 +42,17 @@ class HttpFactory
 	 *
 	 * @param   array  $options  Option for creating http transport object
 	 * @param   mixed  $default  Adapter (string) or queue of adapters (array) to use
+	 * @param   array  $paths    An array of custom lookup paths to search for transport objects in (supported @since __DEPLOY_VERSION__)
 	 *
 	 * @return  TransportInterface|boolean  Interface sub-class or boolean false if no adapters are available
 	 *
 	 * @since   1.0
 	 */
-	public static function getAvailableDriver($options, $default = null)
+	public static function getAvailableDriver($options, $default = null, array $paths = array())
 	{
 		if (is_null($default))
 		{
-			$availableAdapters = static::getHttpTransports();
+			$availableAdapters = static::getHttpTransports($paths);
 		}
 		else
 		{
