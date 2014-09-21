@@ -60,7 +60,7 @@ class Socket implements TransportInterface
 	 * @param   integer       $timeout    Read timeout in seconds.
 	 * @param   string        $userAgent  The optional user agent string to send with the request.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \RuntimeException
@@ -167,16 +167,13 @@ class Socket implements TransportInterface
 	 *
 	 * @param   string  $content  The complete server response, including headers.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \UnexpectedValueException
 	 */
 	protected function getResponse($content)
 	{
-		// Create the response object.
-		$return = new Response;
-
 		if (empty($content))
 		{
 			throw new \UnexpectedValueException('No content in response.');
@@ -189,7 +186,7 @@ class Socket implements TransportInterface
 		$headers = explode("\r\n", $response[0]);
 
 		// Set the body for the response.
-		$return->body = empty($response[1]) ? '' : $response[1];
+		$body = empty($response[1]) ? '' : $response[1];
 
 		// Get the response code from the first offset of the response headers.
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
@@ -197,7 +194,7 @@ class Socket implements TransportInterface
 
 		if (is_numeric($code))
 		{
-			$return->code = (int) $code;
+			$code = (int) $code;
 		}
 		else
 		// No valid response code was detected.
@@ -205,11 +202,14 @@ class Socket implements TransportInterface
 			throw new \UnexpectedValueException('No HTTP response code found.');
 		}
 
-		// Add the response headers to the response object.
+        // Create the response object.
+        $return = new Response($code, array(), $body);
+
+        // Add the response headers to the response object.
 		foreach ($headers as $header)
 		{
 			$pos = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
+			$return->setHeader(trim(substr($header, 0, $pos)), trim(substr($header, ($pos + 1))));
 		}
 
 		return $return;
