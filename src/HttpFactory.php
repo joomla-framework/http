@@ -16,25 +16,25 @@ namespace Joomla\Http;
 class HttpFactory
 {
 	/**
-	 * Method to receive Http instance.
+	 * Method to receive a HttpInterface object.
 	 *
-	 * @param   array  $options   Client options array.
-	 * @param   mixed  $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+	 * @param   array         $options   Client options array.
+	 * @param   string|array  $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+	 * @param   string        $class     Class name of the object to instantiate
 	 *
-	 * @return  Http  Joomla Http class
-	 *
-	 * @throws  \RuntimeException
+	 * @return  HttpInterface
 	 *
 	 * @since   1.0
+	 * @throws  \RuntimeException
 	 */
-	public static function getHttp($options = array(), $adapters = null)
+	public static function getHttp($options = array(), $adapters = null, $class = '\\Joomla\\Http\\Http')
 	{
-		if (!$driver = self::getAvailableDriver($options, $adapters))
+		if (!$driver = static::getAvailableDriver($options, $adapters))
 		{
 			throw new \RuntimeException('No transport driver available.');
 		}
 
-		return new Http($options, $driver);
+		return new $class($options, $driver);
 	}
 
 	/**
@@ -51,7 +51,7 @@ class HttpFactory
 	{
 		if (is_null($default))
 		{
-			$availableAdapters = self::getHttpTransports();
+			$availableAdapters = static::getHttpTransports();
 		}
 		else
 		{
