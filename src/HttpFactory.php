@@ -16,25 +16,25 @@ namespace Joomla\Http;
 class HttpFactory
 {
 	/**
-	 * Method to receive Http instance.
+	 * Method to receive a HttpInterface object.
 	 *
-	 * @param   array  $options   Client options array.
-	 * @param   mixed  $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+	 * @param   array         $options   Client options array.
+	 * @param   string|array  $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+	 * @param   string        $class     Class name of the object to instantiate, must be the full class name (supported @since __DEPLOY_VERSION__)
 	 *
-	 * @return  Http  Joomla Http class
-	 *
-	 * @throws  \RuntimeException
+	 * @return  HttpInterface
 	 *
 	 * @since   1.0
+	 * @throws  \RuntimeException
 	 */
-	public static function getHttp($options = array(), $adapters = null)
+	public static function getHttp($options = array(), $adapters = null, $class = '\\Joomla\\Http\\Http')
 	{
-		if (!$driver = self::getAvailableDriver($options, $adapters))
+		if (!$driver = static::getAvailableDriver($options, $adapters))
 		{
 			throw new \RuntimeException('No transport driver available.');
 		}
 
-		return new Http($options, $driver);
+		return new $class($options, $driver);
 	}
 
 	/**
@@ -42,16 +42,17 @@ class HttpFactory
 	 *
 	 * @param   array  $options  Option for creating http transport object
 	 * @param   mixed  $default  Adapter (string) or queue of adapters (array) to use
+	 * @param   array  $paths    An array of custom lookup paths to search for transport objects in (supported @since __DEPLOY_VERSION__)
 	 *
 	 * @return  TransportInterface|boolean  Interface sub-class or boolean false if no adapters are available
 	 *
 	 * @since   1.0
 	 */
-	public static function getAvailableDriver($options, $default = null)
+	public static function getAvailableDriver($options, $default = null, array $paths = array())
 	{
 		if (is_null($default))
 		{
-			$availableAdapters = self::getHttpTransports();
+			$availableAdapters = static::getHttpTransports($paths);
 		}
 		else
 		{
@@ -68,6 +69,7 @@ class HttpFactory
 		foreach ($availableAdapters as $adapter)
 		{
 			/* @var  $class  TransportInterface */
+			// TODO - Extend this to enable custom namespaces
 			$class = 'Joomla\\Http\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
@@ -85,24 +87,48 @@ class HttpFactory
 	/**
 	 * Get the http transport handlers
 	 *
+	 * @param   array  $paths  An array of custom lookup paths to search for transport objects in (supported @since __DEPLOY_VERSION__)
+	 *
 	 * @return  array  An array of available transport handlers
 	 *
 	 * @since   1.0
 	 */
-	public static function getHttpTransports()
+	public static function getHttpTransports(array $paths = array())
 	{
 		$names = array();
+
+		// First, pull transports from user defined paths
+		foreach ($paths as $path)
+		{
+			$iterator = new \DirectoryIterator($path);
+
+			/*  @var  $file  \DirectoryIterator */
+			foreach ($iterator as $file)
+			{
+				$fileName  = $file->getFilename();
+				$transport = substr($fileName, 0, strrpos($fileName, '.'));
+
+				// Only load for php files.
+				if ($file->isFile() && $file->getExtension() == 'php' && !in_array($transport, $names))
+				{
+					$names[] = $transport;
+				}
+			}
+		}
+
+		// Now add our transports if not already defined
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
 		/*  @var  $file  \DirectoryIterator */
 		foreach ($iterator as $file)
 		{
-			$fileName = $file->getFilename();
+			$fileName  = $file->getFilename();
+			$transport = substr($fileName, 0, strrpos($fileName, '.'));
 
 			// Only load for php files.
-			if ($file->isFile() && $file->getExtension() == 'php')
+			if ($file->isFile() && $file->getExtension() == 'php' && !in_array($transport, $names))
 			{
-				$names[] = substr($fileName, 0, strrpos($fileName, '.'));
+				$names[] = $transport;
 			}
 		}
 
