@@ -34,7 +34,7 @@ $http = new Http($options, $transport);
 
 ##### Making a HEAD request
 
-An HTTP HEAD request can be made using the head method passing a URL and an optional key-value array of header variables. The method will return a `Http\Response` object.
+An HTTP HEAD request can be made using the head method passing a URL and an optional key-value array of header variables. The method will return a `Http\ResponseInterface` object.
 
 ```php
 use Joomla\Http\HttpFactory;
@@ -44,16 +44,6 @@ $http = `Http\HttpFactory`::getHttp();
 
 // Invoke the HEAD request.
 $response = $http->head('http://example.com');
-
-// The response code is included in the "code" property.
-// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-var_dump($response->code);
-
-// The response headers are included as an associative array in the "headers" property.
-var_dump($response->headers);
-
-// The body of the response (not applicable for the HEAD method) is included in the "body" property.
-var_dump($response->body);
 ```
 
 ##### Making a GET request
@@ -125,7 +115,7 @@ $pull = $http->get('https://api.github.com/repos/joomla/joomla-platform/pulls/1'
 
 #### `Http\HttpFactory`
 
-`Http\Http` objects are created by using the `Http\HttpFactory::getHttp` method.
+`Http\HttpInterface` objects are created by using the `Http\HttpFactory::getHttp` method.
 
 ```php
 // The default transport will be 'curl' because this is the first transport.
@@ -135,9 +125,19 @@ $http = Http\HttpFactory::getHttp();
 $http = Http\HttpFactory::getHttp(null, 'stream');
 ```
 
-#### Joomla\Http\Response
+#### Joomla\Http\ResponseInterface
+The result of any request will be a class that implements a ResponseInterface class
 
-> Can you help improve this section of the manual?
+#### Joomla\Http\Response
+This is the default Response class for Joomla.  
+
+The response code is included in the "code" property ``` $response->code ```. However as from __DEPLOY_VERSION__ it is prefered that you use the interface method ``` $response->getStatusCode() ```
+See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html for the full list of codes.
+
+The response headers are included as an associative array in the "headers" property. The correct way to get these from __DEPLOY_VERSION__ is to access them via the interface methods ``` $response->getHeader($header) ``` for a specific header name (case insensitive) or to get all headers ``` $response->getHeaders() ```. From __DEPLOY_VERSION__ you cannot get this body via ```$response->headers``` as this is now a private property.
+
+The body of the response (not applicable for the HEAD method) is included in the "body" property ``` $response->body ```. However as from __DEPLOY_VERSION__ it is prefered that you use the interface method ``` $response->getBody() ```
+
 
 #### Joomla\Http\Transport\Curl
 
