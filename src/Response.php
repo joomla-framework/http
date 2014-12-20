@@ -138,34 +138,24 @@ class Response implements ResponseInterface
 	 * @return  ResponseInterface  Instance of $this to allow chaining.
 	 *
 	 * @since   __DEPLOY_VERSION__
-	 * @throws  \InvalidArgumentException
 	 */
 	public function setHeader($header, $value)
 	{
+		$header = trim($header);
 		$name = strtolower($header);
 
-		switch (gettype($value))
+		if (is_array($value))
 		{
-			case 'string':
-				$this->headers[$name] = array(trim($value));
-				break;
+			foreach ($value as &$v)
+			{
+				$v = trim($v);
+			}
 
-			case 'integer':
-			case 'double':
-				$this->headers[$name] = array((string) $value);
-				break;
-
-			case 'array':
-				foreach ($value as &$v)
-				{
-					$v = trim($v);
-				}
-
-				$this->headers[$name] = $value;
-				break;
-
-			default:
-				throw new \InvalidArgumentException('Invalid header value provided: ' . var_export($value, true));
+			$this->headers[$name] = $value;
+		}
+		else
+		{
+			$this->headers[$name] = array(trim($value));
 		}
 
 		return $this;
