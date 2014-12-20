@@ -46,7 +46,7 @@ class Response implements ResponseInterface
 	{
 		$this->code = (string) $statusCode;
 
-		if ($headers)
+		if (!empty($headers))
 		{
 			$this->setHeaders($headers);
 		}
