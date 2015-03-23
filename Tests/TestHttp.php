@@ -2,30 +2,33 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
-namespace Joomla\Http;
+namespace Joomla\Http\Tests;
 
+use Joomla\Http\HttpFactory;
+use Joomla\Http\HttpInterface;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 
 /**
- * HTTP client class.
+ * Test HTTP client class.
  *
- * @since  1.0
+ * @since  __DEPLOY_VERSION__
  */
-class Http implements HttpInterface
+class TestHttp implements HttpInterface
 {
 	/**
 	 * @var    array  Options for the HTTP client.
-	 * @since  1.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	protected $options;
 
 	/**
 	 * @var    TransportInterface  The HTTP transport object to use in sending HTTP requests.
-	 * @since  1.0
+	 * @since  __DEPLOY_VERSION__
 	 */
 	protected $transport;
 
@@ -36,12 +39,12 @@ class Http implements HttpInterface
 	 *                                          these will be added to the request headers.
 	 * @param   TransportInterface  $transport  The HTTP transport object.
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 * @throws  \InvalidArgumentException
 	 */
 	public function __construct($options = array(), TransportInterface $transport = null)
 	{
-		$this->options   = $options;
+		$this->options = $options;
 
 		if (!isset($transport))
 		{
@@ -64,7 +67,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  mixed  The option value.
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function getOption($key)
 	{
@@ -79,7 +82,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  Http  This object for method chaining.
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function setOption($key, $value)
 	{
@@ -97,7 +100,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function options($url, array $headers = null, $timeout = null)
 	{
@@ -113,7 +116,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function head($url, array $headers = null, $timeout = null)
 	{
@@ -129,7 +132,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function get($url, array $headers = null, $timeout = null)
 	{
@@ -146,7 +149,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function post($url, $data, array $headers = null, $timeout = null)
 	{
@@ -163,7 +166,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function put($url, $data, array $headers = null, $timeout = null)
 	{
@@ -180,7 +183,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function delete($url, array $headers = null, $timeout = null, $data = null)
 	{
@@ -196,7 +199,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function trace($url, array $headers = null, $timeout = null)
 	{
@@ -213,7 +216,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	public function patch($url, $data, array $headers = null, $timeout = null)
 	{
@@ -231,7 +234,7 @@ class Http implements HttpInterface
 	 *
 	 * @return  ResponseInterface
 	 *
-	 * @since   1.0
+	 * @since   __DEPLOY_VERSION__
 	 */
 	protected function makeTransportRequest($method, $url, $data = null, array $headers = null, $timeout = null)
 	{

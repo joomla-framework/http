@@ -60,7 +60,7 @@ class Stream implements TransportInterface
 	 * @param   integer       $timeout    Read timeout in seconds.
 	 * @param   string        $userAgent  The optional user agent string to send with the request.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \RuntimeException
@@ -194,26 +194,20 @@ class Stream implements TransportInterface
 	 * @param   array   $headers  The response headers as an array.
 	 * @param   string  $body     The response body as a string.
 	 *
-	 * @return  Response
+	 * @return  \Joomla\Http\ResponseInterface
 	 *
 	 * @since   1.0
 	 * @throws  \UnexpectedValueException
 	 */
 	protected function getResponse(array $headers, $body)
 	{
-		// Create the response object.
-		$return = new Response;
-
-		// Set the body for the response.
-		$return->body = $body;
-
 		// Get the response code from the first offset of the response headers.
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
 		$code = $matches[0];
 
 		if (is_numeric($code))
 		{
-			$return->code = (int) $code;
+			$code = (int) $code;
 		}
 
 		// No valid response code was detected.
@@ -222,11 +216,14 @@ class Stream implements TransportInterface
 			throw new \UnexpectedValueException('No HTTP response code found.');
 		}
 
+		// Create the response object.
+		$return = new Response($code, array(), $body);
+
 		// Add the response headers to the response object.
 		foreach ($headers as $header)
 		{
 			$pos = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
+			$return->setHeader(trim(substr($header, 0, $pos)), trim(substr($header, ($pos + 1))));
 		}
 
 		return $return;
