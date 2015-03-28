@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -21,13 +21,17 @@ use Joomla\Uri\Uri;
 class Socket implements TransportInterface
 {
 	/**
-	 * @var    array  Reusable socket connections.
+	 * Reusable socket connections.
+	 *
+	 * @var    array
 	 * @since  1.0
 	 */
 	protected $connections;
 
 	/**
-	 * @var    array  The client options.
+	 * The client options.
+	 *
+	 * @var    array|\ArrayAccess
 	 * @since  1.0
 	 */
 	protected $options;
@@ -35,7 +39,7 @@ class Socket implements TransportInterface
 	/**
 	 * Constructor.
 	 *
-	 * @param   array  $options  Client options object.
+	 * @param   array|\ArrayAccess  $options  Client options array.
 	 *
 	 * @since   1.0
 	 * @throws  \RuntimeException
@@ -47,11 +51,18 @@ class Socket implements TransportInterface
 			throw new \RuntimeException('Cannot use a socket transport when fsockopen() is not available.');
 		}
 
+		if (!is_array($options) && !($options instanceof \ArrayAccess))
+		{
+			throw new \InvalidArgumentException(
+				'The options param must be an array or implement the ArrayAccess interface.'
+			);
+		}
+
 		$this->options = $options;
 	}
 
 	/**
-	 * Send a request to the server and return a JHttpResponse object with the response.
+	 * Send a request to the server and return a Response object with the response.
 	 *
 	 * @param   string        $method     The HTTP method for sending the request.
 	 * @param   UriInterface  $uri        The URI to the resource to request.

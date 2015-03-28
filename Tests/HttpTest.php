@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -58,6 +58,18 @@ class HttpTest extends \PHPUnit_Framework_TestCase
 		);
 
 		$this->object = new Http($this->options, $this->transport);
+	}
+
+	/**
+	 * Tests the constructor to ensure only arrays or ArrayAccess objects are allowed
+	 *
+	 * @return  void
+	 *
+	 * @expectedException  \InvalidArgumentException
+	 */
+	public function testConstructorDisallowsNonArrayObjects()
+	{
+		new Http(new \stdClass);
 	}
 
 	/**

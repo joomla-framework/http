@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -20,14 +20,14 @@ interface TransportInterface
 	/**
 	 * Constructor.
 	 *
-	 * @param   array  $options  Client options object.
+	 * @param   array|\ArrayAccess  $options  Client options object.
 	 *
 	 * @since   1.0
 	 */
 	public function __construct($options = array());
 
 	/**
-	 * Send a request to the server and return a JHttpResponse object with the response.
+	 * Send a request to the server and return a Response object with the response.
 	 *
 	 * @param   string        $method     The HTTP method for sending the request.
 	 * @param   UriInterface  $uri        The URI to the resource to request.
@@ -43,7 +43,7 @@ interface TransportInterface
 	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null);
 
 	/**
-	 * Method to check if http transport layer available for using
+	 * Method to check if HTTP transport layer available for using
 	 *
 	 * @return  boolean  True if available else false
 	 *

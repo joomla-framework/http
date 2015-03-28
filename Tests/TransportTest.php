@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -67,6 +67,21 @@ class TransportTest extends \PHPUnit_Framework_TestCase
 			'curl' => array('Joomla\\Http\\Transport\\Curl'),
 			'socket' => array('Joomla\\Http\\Transport\\Socket')
 		);
+	}
+
+	/**
+	 * Tests the transport constructor to ensure only arrays and ArrayAccess objects are allowed
+	 *
+	 * @param   string  $transportClass  The transport class to test
+	 *
+	 * @return  void
+	 *
+	 * @dataProvider       transportProvider
+	 * @expectedException  \InvalidArgumentException
+	 */
+	public function testConstructorWithBadDataObject($transportClass)
+	{
+		new $transportClass(new \stdClass);
 	}
 
 	/**

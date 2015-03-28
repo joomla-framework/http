@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2013 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -18,13 +18,17 @@ use Joomla\Uri\Uri;
 class Http
 {
 	/**
-	 * @var    array  Options for the HTTP client.
+	 * Options for the HTTP client.
+	 *
+	 * @var    array|\ArrayAccess
 	 * @since  1.0
 	 */
 	protected $options;
 
 	/**
-	 * @var    TransportInterface  The HTTP transport object to use in sending HTTP requests.
+	 * The HTTP transport object to use in sending HTTP requests.
+	 *
+	 * @var    TransportInterface
 	 * @since  1.0
 	 */
 	protected $transport;
@@ -32,7 +36,7 @@ class Http
 	/**
 	 * Constructor.
 	 *
-	 * @param   array               $options    Client options array. If the registry contains any headers.* elements,
+	 * @param   array|\ArrayAccess  $options    Client options array. If the registry contains any headers.* elements,
 	 *                                          these will be added to the request headers.
 	 * @param   TransportInterface  $transport  The HTTP transport object.
 	 *
@@ -41,7 +45,14 @@ class Http
 	 */
 	public function __construct($options = array(), TransportInterface $transport = null)
 	{
-		$this->options   = $options;
+		if (!is_array($options) && !($options instanceof \ArrayAccess))
+		{
+			throw new \InvalidArgumentException(
+				'The options param must be an array or implement the ArrayAccess interface.'
+			);
+		}
+
+		$this->options = $options;
 
 		if (!isset($transport))
 		{
