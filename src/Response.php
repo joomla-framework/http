@@ -8,28 +8,44 @@
 
 namespace Joomla\Http;
 
+use Zend\Diactoros\Response as PsrResponse;
+
 /**
  * HTTP response data object class.
  *
  * @since  1.0
  */
-class Response
+class Response extends PsrResponse
 {
 	/**
-	 * @var    integer  The server response code.
-	 * @since  1.0
+	 * Magic getter to keep b/c with code usage before introduction of PSR-7 interface
+	 *
+	 * @return  mixed
 	 */
-	public $code;
+	public function __get($name)
+	{
+		if (strtolower($name) === 'body')
+		{
+			return (string) $this->getBody();
+		}
 
-	/**
-	 * @var    array  Response headers.
-	 * @since  1.0
-	 */
-	public $headers = array();
+		if (strtolower($name) === 'code')
+		{
+			return $this->getStatusCode();
+		}
 
-	/**
-	 * @var    string  Server response body.
-	 * @since  1.0
-	 */
-	public $body;
+		if (strtolower($name) === 'headers')
+		{
+			return $this->getHeaders();
+		}
+
+		$trace = debug_backtrace();
+		trigger_error(
+			'Undefined property via __get(): ' . $name .
+			' in ' . $trace[0]['file'] .
+			' on line ' . $trace[0]['line'],
+			E_USER_NOTICE);
+
+		return null;
+	}
 }

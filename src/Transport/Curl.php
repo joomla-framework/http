@@ -204,9 +204,6 @@ class Curl implements TransportInterface
 	 */
 	protected function getResponse($content, $info)
 	{
-		// Create the response object.
-		$return = new Response;
-
 		// Get the number of redirects that occurred.
 		$redirects = isset($info['redirect_count']) ? $info['redirect_count'] : 0;
 
@@ -218,7 +215,7 @@ class Curl implements TransportInterface
 		$response = explode("\r\n\r\n", $content, 2 + $redirects);
 
 		// Set the body for the response.
-		$return->body = array_pop($response);
+		$body = array_pop($response);
 
 		// Get the last set of response headers as an array.
 		$headers = explode("\r\n", array_pop($response));
@@ -230,7 +227,7 @@ class Curl implements TransportInterface
 
 		if (is_numeric($code))
 		{
-			$return->code = (int) $code;
+			$statusCode = (int) $code;
 		}
 
 		// No valid response code was detected.
@@ -239,14 +236,16 @@ class Curl implements TransportInterface
 			throw new \UnexpectedValueException('No HTTP response code found.');
 		}
 
+		$verifiedHeaders = array();
+
 		// Add the response headers to the response object.
 		foreach ($headers as $header)
 		{
 			$pos = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
+			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
 		}
 
-		return $return;
+		return new Response($body, $statusCode, $verifiedHeaders);
 	}
 
 	/**
