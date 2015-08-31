@@ -13,12 +13,18 @@ use Zend\Diactoros\Response as PsrResponse;
 /**
  * HTTP response data object class.
  *
+ * @property  string  $body     The response body as a string
+ * @property  int     $code     The status code of the response
+ * @property  array   $headers  The headers as a array
+ *
  * @since  1.0
  */
 class Response extends PsrResponse
 {
 	/**
 	 * Magic getter to keep b/c with code usage before introduction of PSR-7 interface
+	 *
+	 * @param   string  $name  The variable to return
 	 *
 	 * @return  mixed
 	 */
@@ -44,7 +50,8 @@ class Response extends PsrResponse
 			'Undefined property via __get(): ' . $name .
 			' in ' . $trace[0]['file'] .
 			' on line ' . $trace[0]['line'],
-			E_USER_NOTICE);
+			E_USER_NOTICE
+		);
 
 		return null;
 	}
