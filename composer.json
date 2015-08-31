@@ -8,7 +8,7 @@
     "require": {
         "php": ">=5.4",
         "joomla/uri": "~1.0",
-		"zendframework/zend-diactoros": "~1.1"
+        "zendframework/zend-diactoros": "~1.1"
     },
     "require-dev": {
         "joomla/test": "~1.0",
