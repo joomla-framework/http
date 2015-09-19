@@ -1,6 +1,12 @@
 ## Updating from v1 to v2
 
-Version 2 of the HTTP package started to use PSR-7 compliant packages. This means that custom transport drivers now need to formulate
+### PHP 5.3 support dropped
+
+The HTTP package now requires PHP 5.4 or newer.
+
+### PSR-7 Support
+
+Version 2 of the HTTP package started to use PSR-7 compliant syntax. This means that custom transport drivers now need to formulate
 their `Response` object using PSR-7 compliant syntax.
 
 `
