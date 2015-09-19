@@ -13,20 +13,23 @@ use Zend\Diactoros\Response as PsrResponse;
 /**
  * HTTP response data object class.
  *
- * @property  string  $body     The response body as a string
- * @property  int     $code     The status code of the response
- * @property  array   $headers  The headers as a array
+ * @property  string   $body     The response body as a string
+ * @property  integer  $code     The status code of the response
+ * @property  array    $headers  The headers as an array
  *
- * @since  1.0
+ * @since     1.0
  */
 class Response extends PsrResponse
 {
 	/**
-	 * Magic getter to keep b/c with code usage before introduction of PSR-7 interface
+	 * Magic getter for backward compatibility with the 1.x API
 	 *
 	 * @param   string  $name  The variable to return
 	 *
 	 * @return  mixed
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 * @deprecated  3.0  Access data via the PSR-7 ResponseInterface instead
 	 */
 	public function __get($name)
 	{
@@ -53,6 +56,6 @@ class Response extends PsrResponse
 			E_USER_NOTICE
 		);
 
-		return null;
+		return;
 	}
 }

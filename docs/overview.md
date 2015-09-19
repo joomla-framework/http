@@ -1,11 +1,11 @@
 ## Overview
 
 The HTTP package includes a suite of classes to facilitate RESTful HTTP requests over a variety of transport protocols.
+All methods return a [Response](classes/Response.md) object which is [PSR-7](http://www.php-fig.org/psr/psr-7/) compliant.
 
 ### Making a HEAD request
 
 An HTTP HEAD request can be made using the head method passing a URL and an optional key-value array of header variables.
-The method will return a [Response](classes/Response.md) object which is [PSR-7](http://www.php-fig.org/psr/psr-7/) compliant.
 
 ```php
 use Joomla\Http\HttpFactory;
