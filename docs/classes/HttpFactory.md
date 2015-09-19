@@ -11,7 +11,7 @@ The `getHttp()` method can be used to create `Http` objects from the factory.
  * @param   array|\ArrayAccess  $options   Client options array.
  * @param   array|string        $adapters  Adapter (string) or queue of adapters (array) to use for communication.
  */
-public static function getHttp($options = array(), $adapters = null)
+public function getHttp($options = array(), $adapters = null)
 ```
 
 The following example demonstrates basic use of the `getHttp()` method.
@@ -20,7 +20,7 @@ The following example demonstrates basic use of the `getHttp()` method.
 use Joomla\Http\HttpFactory;
 
 // Create an instance of a default Http object.
-$http = HttpFactory::getHttp();
+$http = (new HttpFactory)->getHttp();
 ```
 
 Note that a `RuntimeException` is thrown if no `TransportInterface` objects are available for use.
@@ -34,7 +34,7 @@ The `getAvailableDriver()` method can be used to create [TransportInterface](Tra
  * @param   array|\ArrayAccess  $options  Options for creating TransportInterface object
  * @param   array|string        $default  Adapter (string) or queue of adapters (array) to use
  */
-public static function getAvailableDriver($options = array(), $default = null)
+public function getAvailableDriver($options = array(), $default = null)
 ```
 
 The following example demonstrates basic use of the `getAvailableDriver()` method.
@@ -43,7 +43,7 @@ The following example demonstrates basic use of the `getAvailableDriver()` metho
 use Joomla\Http\HttpFactory;
 
 // Create an instance of a TransportInterface object.
-$transport = HttpFactory::getAvailableDriver();
+$transport = (new HttpFactory)->getAvailableDriver();
 ```
 
 ### Retrieving the available TransportInterface implementations
@@ -51,7 +51,7 @@ $transport = HttpFactory::getAvailableDriver();
 The `getHttpTransports()` method can be used to retrieve a list of supported [TransportInterface](TransportInterface.md) objects from the factory. 
 
 ```php
-public static function getHttpTransports()
+public function getHttpTransports()
 ```
 
 The following example demonstrates basic use of the `getHttpTransports()` method.
@@ -60,6 +60,6 @@ The following example demonstrates basic use of the `getHttpTransports()` method
 use Joomla\Http\HttpFactory;
 
 // Get a list of available TransportInterface objects.
-$transports = HttpFactory::getHttpTransports();
+$transports = (new HttpFactory)->getHttpTransports();
 ```
 

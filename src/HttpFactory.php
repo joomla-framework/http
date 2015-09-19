@@ -27,7 +27,7 @@ class HttpFactory
 	 * @throws  \InvalidArgumentException
 	 * @throws  \RuntimeException
 	 */
-	public static function getHttp($options = array(), $adapters = null)
+	public function getHttp($options = array(), $adapters = null)
 	{
 		if (!is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -36,7 +36,7 @@ class HttpFactory
 			);
 		}
 
-		if (!$driver = self::getAvailableDriver($options, $adapters))
+		if (!$driver = $this->getAvailableDriver($options, $adapters))
 		{
 			throw new \RuntimeException('No transport driver available.');
 		}
@@ -55,7 +55,7 @@ class HttpFactory
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	public static function getAvailableDriver($options = array(), $default = null)
+	public function getAvailableDriver($options = array(), $default = null)
 	{
 		if (!is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -66,7 +66,7 @@ class HttpFactory
 
 		if (is_null($default))
 		{
-			$availableAdapters = self::getHttpTransports();
+			$availableAdapters = $this->getHttpTransports();
 		}
 		else
 		{
@@ -82,7 +82,7 @@ class HttpFactory
 
 		foreach ($availableAdapters as $adapter)
 		{
-			/* @var  $class  TransportInterface */
+			/** @var $class TransportInterface */
 			$class = 'Joomla\\Http\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
@@ -104,12 +104,12 @@ class HttpFactory
 	 *
 	 * @since   1.0
 	 */
-	public static function getHttpTransports()
+	public function getHttpTransports()
 	{
 		$names = array();
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
-		/*  @var  $file  \DirectoryIterator */
+		/** @var $file \DirectoryIterator */
 		foreach ($iterator as $file)
 		{
 			$fileName = $file->getFilename();

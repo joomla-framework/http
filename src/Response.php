@@ -17,7 +17,7 @@ use Zend\Diactoros\Response as PsrResponse;
  * @property  integer  $code     The status code of the response
  * @property  array    $headers  The headers as an array
  *
- * @since     1.0
+ * @since  1.0
  */
 class Response extends PsrResponse
 {

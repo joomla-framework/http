@@ -18,3 +18,7 @@ $response->withStatus($statusCode);
 
 We encourage users of the package to use PSR-7 compliant code to retrieve information from the response object, however we are maintaining
 support for retrieving the body, headers and status code through the same way as in version 1 of the HTTP package.
+
+### Factory class methods no longer static
+
+The methods of the `HttpFactory` class are no longer static.  Users must now instantiate the factory class to access its methods.
