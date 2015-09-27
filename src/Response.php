@@ -13,11 +13,11 @@ use Zend\Diactoros\Response as PsrResponse;
 /**
  * HTTP response data object class.
  *
- * @property  string   $body     The response body as a string
- * @property  integer  $code     The status code of the response
- * @property  array    $headers  The headers as an array
+ * @property-read  string   $body     The response body as a string
+ * @property-read  integer  $code     The status code of the response
+ * @property-read  array    $headers  The headers as an array
  *
- * @since     1.0
+ * @since  1.0
  */
 class Response extends PsrResponse
 {
