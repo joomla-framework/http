@@ -8,6 +8,7 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
@@ -206,7 +207,7 @@ class Stream implements TransportInterface
 	 * @return  Response
 	 *
 	 * @since   1.0
-	 * @throws  \UnexpectedValueException
+	 * @throws  InvalidResponseCodeException
 	 */
 	protected function getResponse(array $headers, $body)
 	{
@@ -218,11 +219,10 @@ class Stream implements TransportInterface
 		{
 			$statusCode = (int) $code;
 		}
-
 		// No valid response code was detected.
 		else
 		{
-			throw new \UnexpectedValueException('No HTTP response code found.');
+			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
 		$verifiedHeaders = array();

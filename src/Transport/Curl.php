@@ -8,6 +8,7 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
@@ -149,8 +150,14 @@ class Curl implements TransportInterface
 		// Link: http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
 		$options[CURLOPT_HTTPHEADER][] = 'Expect:';
 
-		// Follow redirects.
-		$options[CURLOPT_FOLLOWLOCATION] = (bool) (isset($this->options['follow_location']) ? $this->options['follow_location'] : true);
+		/*
+		 * Follow redirects if server config allows
+		 * @deprecated  safe_mode is removed in PHP 5.4, check will be dropped when PHP 5.3 support is dropped
+		 */
+		if (!ini_get('safe_mode') && !ini_get('open_basedir'))
+		{
+			$options[CURLOPT_FOLLOWLOCATION] = (bool) isset($this->options['follow_location']) ? $this->options['follow_location'] : true;
+		}
 
 		// Set any custom transport options
 		if (isset($this->options['transport.curl']))
@@ -200,7 +207,7 @@ class Curl implements TransportInterface
 	 * @return  Response
 	 *
 	 * @since   1.0
-	 * @throws  \UnexpectedValueException
+	 * @throws  InvalidResponseCodeException
 	 */
 	protected function getResponse($content, $info)
 	{
@@ -233,7 +240,7 @@ class Curl implements TransportInterface
 		// No valid response code was detected.
 		else
 		{
-			throw new \UnexpectedValueException('No HTTP response code found.');
+			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
 		$verifiedHeaders = array();

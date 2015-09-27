@@ -8,6 +8,7 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
@@ -191,6 +192,7 @@ class Socket implements TransportInterface
 	 *
 	 * @since   1.0
 	 * @throws  \UnexpectedValueException
+	 * @throws  InvalidResponseCodeException
 	 */
 	protected function getResponse($content)
 	{
@@ -219,7 +221,7 @@ class Socket implements TransportInterface
 		else
 		// No valid response code was detected.
 		{
-			throw new \UnexpectedValueException('No HTTP response code found.');
+			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
 		$verifiedHeaders = array();
@@ -251,7 +253,7 @@ class Socket implements TransportInterface
 		$err = null;
 
 		// Get the host from the uri.
-		$host = ($uri->isSSL()) ? 'ssl://' . $uri->getHost() : $uri->getHost();
+		$host = ($uri->isSsl()) ? 'ssl://' . $uri->getHost() : $uri->getHost();
 
 		// If the port is not explicitly set in the URI detect it.
 		if (!$uri->getPort())
