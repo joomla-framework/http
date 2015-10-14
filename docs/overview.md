@@ -11,7 +11,7 @@ An HTTP HEAD request can be made using the head method passing a URL and an opti
 use Joomla\Http\HttpFactory;
 
 // Create an instance of a default Http object.
-$http = HttpFactory::getHttp();
+$http = (new HttpFactory)->getHttp();
 
 // Invoke the HEAD request.
 $response = $http->head('http://example.com');
