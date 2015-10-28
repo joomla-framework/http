@@ -13,6 +13,7 @@ use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
 use Joomla\Uri\Uri;
+use Zend\Diactoros\Stream;
 
 /**
  * HTTP transport class for using sockets directly.
@@ -233,7 +234,10 @@ class Socket implements TransportInterface
 			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
 		}
 
-		return new Response($body, $statusCode, $verifiedHeaders);
+		$streamInterface = new Stream('php://memory');
+		$streamInterface->write($body);
+
+		return new Response($streamInterface, $statusCode, $verifiedHeaders);
 	}
 
 	/**

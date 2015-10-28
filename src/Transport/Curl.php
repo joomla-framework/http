@@ -12,6 +12,7 @@ use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
+use Zend\Diactoros\Stream;
 
 /**
  * HTTP transport class for using cURL.
@@ -249,7 +250,10 @@ class Curl implements TransportInterface
 			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
 		}
 
-		return new Response($body, $statusCode, $verifiedHeaders);
+		$streamInterface = new Stream('php://memory');
+		$streamInterface->write($body);
+
+		return new Response($streamInterface, $statusCode, $verifiedHeaders);
 	}
 
 	/**
