@@ -235,7 +235,7 @@ class Stream implements TransportInterface
 			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
 		}
 
-		$streamInterface = new StreamResponse('php://memory');
+		$streamInterface = new StreamResponse('php://memory', 'rw');
 		$streamInterface->write($body);
 
 		return new Response($streamInterface, $statusCode, $verifiedHeaders);
