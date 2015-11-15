@@ -27,7 +27,7 @@ class HttpFactory
 	 * @throws  \InvalidArgumentException
 	 * @throws  \RuntimeException
 	 */
-	public function getHttp($options = array(), $adapters = null)
+	public function getHttp($options = [], $adapters = null)
 	{
 		if (!is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -55,7 +55,7 @@ class HttpFactory
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	public function getAvailableDriver($options = array(), $default = null)
+	public function getAvailableDriver($options = [], $default = null)
 	{
 		if (!is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -106,7 +106,7 @@ class HttpFactory
 	 */
 	public function getHttpTransports()
 	{
-		$names = array();
+		$names = [];
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
 		/** @var $file \DirectoryIterator */

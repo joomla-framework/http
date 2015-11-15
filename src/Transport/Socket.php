@@ -8,8 +8,8 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
-use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
 use Joomla\Uri\Uri;
@@ -20,7 +20,7 @@ use Zend\Diactoros\Stream as StreamResponse;
  *
  * @since  1.0
  */
-class Socket implements TransportInterface
+class Socket extends AbstractTransport
 {
 	/**
 	 * Reusable socket connections.
@@ -29,39 +29,6 @@ class Socket implements TransportInterface
 	 * @since  1.0
 	 */
 	protected $connections;
-
-	/**
-	 * The client options.
-	 *
-	 * @var    array|\ArrayAccess
-	 * @since  1.0
-	 */
-	protected $options;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options array.
-	 *
-	 * @since   1.0
-	 * @throws  \RuntimeException
-	 */
-	public function __construct($options = array())
-	{
-		if (!self::isSupported())
-		{
-			throw new \RuntimeException('Cannot use a socket transport when fsockopen() is not available.');
-		}
-
-		if (!is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
-
-		$this->options = $options;
-	}
 
 	/**
 	 * Send a request to the server and return a Response object with the response.
@@ -78,28 +45,26 @@ class Socket implements TransportInterface
 	 * @since   1.0
 	 * @throws  \RuntimeException
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null)
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
 	{
 		$connection = $this->connect($uri, $timeout);
 
 		// Make sure the connection is alive and valid.
-		if (is_resource($connection))
-		{
-			// Make sure the connection has not timed out.
-			$meta = stream_get_meta_data($connection);
-
-			if ($meta['timed_out'])
-			{
-				throw new \RuntimeException('Server connection timed out.');
-			}
-		}
-		else
+		if (!is_resource($connection))
 		{
 			throw new \RuntimeException('Not connected to server.');
 		}
 
+		// Make sure the connection has not timed out.
+		$meta = stream_get_meta_data($connection);
+
+		if ($meta['timed_out'])
+		{
+			throw new \RuntimeException('Server connection timed out.');
+		}
+
 		// Get the request path from the URI object.
-		$path = $uri->toString(array('path', 'query'));
+		$path = $uri->toString(['path', 'query']);
 
 		// If we have data to send make sure our request is setup for it.
 		if (!empty($data))
@@ -120,7 +85,7 @@ class Socket implements TransportInterface
 		}
 
 		// Build the request payload.
-		$request = array();
+		$request = [];
 		$request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/1.0';
 		$request[] = 'Host: ' . $uri->getHost();
 
@@ -147,12 +112,9 @@ class Socket implements TransportInterface
 		}
 
 		// Set any custom transport options
-		if (isset($this->options['transport.socket']))
+		foreach ($this->getOption('transport.socket', []) as $value)
 		{
-			foreach ($this->options['transport.socket'] as $value)
-			{
-				$request[] = $value;
-			}
+			$request[] = $value;
 		}
 
 		// If we have data to send add it to the request payload.
@@ -215,24 +177,14 @@ class Socket implements TransportInterface
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
 		$code = $matches[0];
 
-		if (is_numeric($code))
+		if (!is_numeric($code))
 		{
-			$statusCode = (int) $code;
-		}
-		else
-		// No valid response code was detected.
-		{
+			// No valid response code was detected.
 			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
-		$verifiedHeaders = array();
-
-		// Add the response headers to the response object.
-		foreach ($headers as $header)
-		{
-			$pos = strpos($header, ':');
-			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
-		}
+		$statusCode      = (int) $code;
+		$verifiedHeaders = $this->processHeaders($headers);
 
 		$streamInterface = new StreamResponse('php://memory', 'rw');
 		$streamInterface->write($body);

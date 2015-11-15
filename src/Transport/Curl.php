@@ -8,8 +8,8 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
-use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
@@ -19,43 +19,8 @@ use Zend\Diactoros\Stream as StreamResponse;
  *
  * @since  1.0
  */
-class Curl implements TransportInterface
+class Curl extends AbstractTransport
 {
-	/**
-	 * The client options.
-	 *
-	 * @var    array|\ArrayAccess
-	 * @since  1.0
-	 */
-	protected $options;
-
-	/**
-	 * Constructor. CURLOPT_FOLLOWLOCATION must be disabled when open_basedir or safe_mode are enabled.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options array.
-	 *
-	 * @see     http://www.php.net/manual/en/function.curl-setopt.php
-	 * @since   1.0
-	 * @throws  \InvalidArgumentException
-	 * @throws  \RuntimeException
-	 */
-	public function __construct($options = array())
-	{
-		if (!function_exists('curl_init') || !is_callable('curl_init'))
-		{
-			throw new \RuntimeException('Cannot use a cURL transport when curl_init() is not available.');
-		}
-
-		if (!is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
-
-		$this->options = $options;
-	}
-
 	/**
 	 * Send a request to the server and return a Response object with the response.
 	 *
@@ -71,7 +36,7 @@ class Curl implements TransportInterface
 	 * @since   1.0
 	 * @throws  \RuntimeException
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null)
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
 	{
 		// Setup the cURL handle.
 		$ch = curl_init();
@@ -83,7 +48,7 @@ class Curl implements TransportInterface
 		$options[CURLOPT_NOBODY] = ($method === 'HEAD');
 
 		// Initialize the certificate store
-		$options[CURLOPT_CAINFO] = isset($this->options['curl.certpath']) ? $this->options['curl.certpath'] : __DIR__ . '/cacert.pem';
+		$options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', __DIR__ . '/cacert.pem');
 
 		// If data exists let's encode it and make sure our Content-type header is set.
 		if (isset($data))
@@ -112,7 +77,7 @@ class Curl implements TransportInterface
 		}
 
 		// Build the headers string for the request.
-		$headerArray = array();
+		$headerArray = [];
 
 		if (isset($headers))
 		{
@@ -154,16 +119,13 @@ class Curl implements TransportInterface
 		// Follow redirects if server config allows
 		if (!ini_get('open_basedir'))
 		{
-			$options[CURLOPT_FOLLOWLOCATION] = (bool) isset($this->options['follow_location']) ? $this->options['follow_location'] : true;
+			$options[CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
 		}
 
 		// Set any custom transport options
-		if (isset($this->options['transport.curl']))
+		foreach ($this->getOption('transport.curl', []) as $key => $value)
 		{
-			foreach ($this->options['transport.curl'] as $key => $value)
-			{
-				$options[$key] = $value;
-			}
+			$options[$key] = $value;
 		}
 
 		// Set the cURL options.
@@ -230,25 +192,14 @@ class Curl implements TransportInterface
 
 		$code = count($matches) ? $matches[0] : null;
 
-		if (is_numeric($code))
+		if (!is_numeric($code))
 		{
-			$statusCode = (int) $code;
-		}
-
-		// No valid response code was detected.
-		else
-		{
+			// No valid response code was detected.
 			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
-		$verifiedHeaders = array();
-
-		// Add the response headers to the response object.
-		foreach ($headers as $header)
-		{
-			$pos = strpos($header, ':');
-			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
-		}
+		$statusCode      = (int) $code;
+		$verifiedHeaders = $this->processHeaders($headers);
 
 		$streamInterface = new StreamResponse('php://memory', 'rw');
 		$streamInterface->write($body);

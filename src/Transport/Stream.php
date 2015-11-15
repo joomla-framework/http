@@ -8,8 +8,8 @@
 
 namespace Joomla\Http\Transport;
 
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
-use Joomla\Http\TransportInterface;
 use Joomla\Http\Response;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
@@ -19,48 +19,8 @@ use Zend\Diactoros\Stream as StreamResponse;
  *
  * @since  1.0
  */
-class Stream implements TransportInterface
+class Stream extends AbstractTransport
 {
-	/**
-	 * The client options.
-	 *
-	 * @var    array|\ArrayAccess
-	 * @since  1.0
-	 */
-	protected $options;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options array.
-	 *
-	 * @since   1.0
-	 * @throws  \RuntimeException
-	 */
-	public function __construct($options = array())
-	{
-		// Verify that fopen() is available.
-		if (!self::isSupported())
-		{
-			throw new \RuntimeException('Cannot use a stream transport when fopen() is not available.');
-		}
-
-		// Verify that URLs can be used with fopen();
-		if (!ini_get('allow_url_fopen'))
-		{
-			throw new \RuntimeException('Cannot use a stream transport when "allow_url_fopen" is disabled.');
-		}
-
-		if (!is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
-
-		$this->options = $options;
-	}
-
 	/**
 	 * Send a request to the server and return a Response object with the response.
 	 *
@@ -76,10 +36,10 @@ class Stream implements TransportInterface
 	 * @since   1.0
 	 * @throws  \RuntimeException
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null)
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
 	{
 		// Create the stream context options array with the required method offset.
-		$options = array('method' => strtoupper($method));
+		$options = ['method' => strtoupper($method)];
 
 		// If data exists let's encode it and make sure our Content-Type header is set.
 		if (isset($data))
@@ -134,19 +94,16 @@ class Stream implements TransportInterface
 		$options['ignore_errors'] = 1;
 
 		// Follow redirects.
-		$options['follow_location'] = isset($this->options['follow_location']) ? (int) $this->options['follow_location'] : 1;
+		$options['follow_location'] = (int) $this->getOption('follow_location', 1);
 
 		// Set any custom transport options
-		if (isset($this->options['transport.stream']))
+		foreach ($this->getOption('transport.stream', []) as $key => $value)
 		{
-			foreach ($this->options['transport.stream'] as $key => $value)
-			{
-				$options[$key] = $value;
-			}
+			$options[$key] = $value;
 		}
 
 		// Create the stream context for the request.
-		$context = stream_context_create(array('http' => $options));
+		$context = stream_context_create(['http' => $options]);
 
 		// Capture PHP errors
 		$php_errormsg = '';
@@ -183,6 +140,8 @@ class Stream implements TransportInterface
 		// Close the stream.
 		fclose($stream);
 
+		$headers = [];
+
 		if (isset($metadata['wrapper_data']['headers']))
 		{
 			$headers = $metadata['wrapper_data']['headers'];
@@ -190,10 +149,6 @@ class Stream implements TransportInterface
 		elseif (isset($metadata['wrapper_data']))
 		{
 			$headers = $metadata['wrapper_data'];
-		}
-		else
-		{
-			$headers = array();
 		}
 
 		return $this->getResponse($headers, $content);
@@ -216,24 +171,14 @@ class Stream implements TransportInterface
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
 		$code = $matches[0];
 
-		if (is_numeric($code))
+		if (!is_numeric($code))
 		{
-			$statusCode = (int) $code;
-		}
-		// No valid response code was detected.
-		else
-		{
+			// No valid response code was detected.
 			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
-		$verifiedHeaders = array();
-
-		// Add the response headers to the response object.
-		foreach ($headers as $header)
-		{
-			$pos = strpos($header, ':');
-			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
-		}
+		$statusCode      = (int) $code;
+		$verifiedHeaders = $this->processHeaders($headers);
 
 		$streamInterface = new StreamResponse('php://memory', 'rw');
 		$streamInterface->write($body);

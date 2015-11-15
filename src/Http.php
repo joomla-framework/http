@@ -71,15 +71,16 @@ class Http
 	/**
 	 * Get an option from the HTTP client.
 	 *
-	 * @param   string  $key  The name of the option to get.
+	 * @param   string  $key      The name of the option to get.
+	 * @param   mixed   $default  The default value if the option is not set.
 	 *
 	 * @return  mixed  The option value.
 	 *
 	 * @since   1.0
 	 */
-	public function getOption($key)
+	public function getOption($key, $default = null)
 	{
-		return isset($this->options[$key]) ? $this->options[$key] : null;
+		return isset($this->options[$key]) ? $this->options[$key] : $default;
 	}
 
 	/**
@@ -88,7 +89,7 @@ class Http
 	 * @param   string  $key    The name of the option to set.
 	 * @param   mixed   $value  The option value to set.
 	 *
-	 * @return  Http  This object for method chaining.
+	 * @return  $this
 	 *
 	 * @since   1.0
 	 */

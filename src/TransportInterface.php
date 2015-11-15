@@ -24,7 +24,7 @@ interface TransportInterface
 	 *
 	 * @since   1.0
 	 */
-	public function __construct($options = array());
+	public function __construct($options = []);
 
 	/**
 	 * Send a request to the server and return a Response object with the response.
@@ -40,7 +40,7 @@ interface TransportInterface
 	 *
 	 * @since   1.0
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null);
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null);
 
 	/**
 	 * Method to check if HTTP transport layer available for using
