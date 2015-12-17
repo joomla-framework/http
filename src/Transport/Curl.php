@@ -234,15 +234,6 @@ class Curl extends AbstractTransport
 			return true;
 		}
 
-		// For PHP 5.3, redirects are not allowed if safe_mode and open_basedir are enabled
-		if (PHP_MAJOR_VERSION === 5 && PHP_MINOR_VERSION === 3)
-		{
-			if (!ini_get('safe_mode') && !ini_get('open_basedir'))
-			{
-				return true;
-			}
-		}
-
 		// For PHP 5.4 and 5.5, we only need to check if open_basedir is disabled
 		return !ini_get('open_basedir');
 	}
