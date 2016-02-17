@@ -43,7 +43,7 @@ class Http
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	public function __construct($options = array(), TransportInterface $transport = null)
+	public function __construct($options = [], TransportInterface $transport = null)
 	{
 		if (!is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -111,7 +111,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function options($url, array $headers = null, $timeout = null)
+	public function options($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('OPTIONS', $url, null, $headers, $timeout);
 	}
@@ -127,7 +127,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function head($url, array $headers = null, $timeout = null)
+	public function head($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('HEAD', $url, null, $headers, $timeout);
 	}
@@ -143,7 +143,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function get($url, array $headers = null, $timeout = null)
+	public function get($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('GET', $url, null, $headers, $timeout);
 	}
@@ -160,7 +160,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function post($url, $data, array $headers = null, $timeout = null)
+	public function post($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('POST', $url, $data, $headers, $timeout);
 	}
@@ -177,7 +177,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function put($url, $data, array $headers = null, $timeout = null)
+	public function put($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('PUT', $url, $data, $headers, $timeout);
 	}
@@ -194,7 +194,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function delete($url, array $headers = null, $timeout = null, $data = null)
+	public function delete($url, array $headers = [], $timeout = null, $data = null)
 	{
 		return $this->makeTransportRequest('DELETE', $url, $data, $headers, $timeout);
 	}
@@ -210,7 +210,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function trace($url, array $headers = null, $timeout = null)
+	public function trace($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('TRACE', $url, null, $headers, $timeout);
 	}
@@ -227,13 +227,13 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function patch($url, $data, array $headers = null, $timeout = null)
+	public function patch($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('PATCH', $url, $data, $headers, $timeout);
 	}
 
 	/**
-	 * Send a request to the server and return a JHttpResponse object with the response.
+	 * Send a request to the server and return a Response object with the response.
 	 *
 	 * @param   string   $method   The HTTP method for sending the request.
 	 * @param   string   $url      The URI to the resource to request.
@@ -245,7 +245,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	protected function makeTransportRequest($method, $url, $data = null, array $headers = null, $timeout = null)
+	protected function makeTransportRequest($method, $url, $data = null, array $headers = [], $timeout = null)
 	{
 		// Look for headers set in the options.
 		if (isset($this->options['headers']))
