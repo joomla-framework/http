@@ -18,15 +18,6 @@ use Joomla\Uri\UriInterface;
 interface TransportInterface
 {
 	/**
-	 * Constructor.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options object.
-	 *
-	 * @since   1.0
-	 */
-	public function __construct($options = []);
-
-	/**
 	 * Send a request to the server and return a Response object with the response.
 	 *
 	 * @param   string        $method     The HTTP method for sending the request.
