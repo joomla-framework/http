@@ -125,7 +125,7 @@ class Stream extends AbstractTransport
 		}
 
 		$context = stream_context_create($streamOptions);
-		
+
 		// Capture PHP errors
 		$php_errormsg = '';
 		$track_errors = ini_get('track_errors');
