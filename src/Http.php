@@ -56,7 +56,7 @@ class Http
 
 		if (!isset($transport))
 		{
-			$transport = HttpFactory::getAvailableDriver($this->options);
+			$transport = (new HttpFactory)->getAvailableDriver($this->options);
 		}
 
 		// Ensure the transport is a TransportInterface instance or bail out
