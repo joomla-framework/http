@@ -22,3 +22,7 @@ support for retrieving the body, headers and status code through the same way as
 ### Factory class methods no longer static
 
 The methods of the `HttpFactory` class are no longer static.  Users must now instantiate the factory class to access its methods.
+
+### cacert.pem no longer included
+
+The HTTP package no longer includes a cacert.pem file. The file packaged with the `composer/ca-bundle` package is used instead per its logic.
