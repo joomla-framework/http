@@ -8,6 +8,7 @@
     "require": {
         "php": ">=5.4|>=7.0",
         "joomla/uri": "~1.0",
+        "composer/ca-bundle": "~1.0",
         "zendframework/zend-diactoros": "~1.1"
     },
     "require-dev": {
@@ -19,14 +20,18 @@
         "joomla/registry": "Registry can be used as an alternative to using an array for the package options."
     },
     "autoload": {
-    	"psr-4": {
-    		"Joomla\\Http\\": "src/",
+        "psr-4": {
+            "Joomla\\Http\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Joomla\\Http\\Tests\\": "Tests/"
-    	}
+        }
     },
     "extra": {
         "branch-alias": {
-	        "dev-2.0-dev": "2.0-dev"
+            "dev-2.0-dev": "2.0-dev"
         }
     }
 }

@@ -8,6 +8,7 @@
 
 namespace Joomla\Http\Transport;
 
+use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
@@ -48,7 +49,7 @@ class Curl extends AbstractTransport
 		$options[CURLOPT_NOBODY] = ($method === 'HEAD');
 
 		// Initialize the certificate store
-		$options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', __DIR__ . '/cacert.pem');
+		$options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', CaBundle::getSystemCaRootBundlePath());
 
 		// If data exists let's encode it and make sure our Content-type header is set.
 		if (isset($data))
