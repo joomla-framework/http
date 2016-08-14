@@ -145,9 +145,9 @@ class Curl extends AbstractTransport
 		}
 
 		// Authentication, if needed
-		if (isset($this->options['userauth']) && isset($this->options['passwordauth']))
+		if ($this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$options[CURLOPT_USERPWD]  = $this->options['userauth'] . ':' . $this->options['passwordauth'];
+			$options[CURLOPT_USERPWD]  = $this->getOption('userauth') . ':' . $this->getOption('passwordauth');
 			$options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 		}
 

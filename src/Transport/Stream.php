@@ -116,10 +116,10 @@ class Stream extends AbstractTransport
 		}
 
 		// Authentication, if needed
-		if ($uri instanceof Uri && isset($this->options['userauth']) && isset($this->options['passwordauth']))
+		if ($uri instanceof Uri && $this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$uri->setUser($this->options['userauth']);
-			$uri->setPass($this->options['passwordauth']);
+			$uri->setUser($this->getOption('userauth'));
+			$uri->setPass($this->getOption('passwordauth'));
 		}
 
 		// Set any custom transport options

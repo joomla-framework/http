@@ -112,9 +112,9 @@ class Socket extends AbstractTransport
 		}
 
 		// Authentication, if needed
-		if (isset($this->options['userauth']) && isset($this->options['passwordauth']))
+		if ($this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$request[] = 'Authorization: Basic ' . base64_encode($this->options['userauth'] . ':' . $this->options['passwordauth']);
+			$request[] = 'Authorization: Basic ' . base64_encode($this->getOption('userauth') . ':' . $this->getOption('passwordauth'));
 		}
 
 		// Set any custom transport options
