@@ -42,8 +42,23 @@ class Curl extends AbstractTransport
 		// Setup the cURL handle.
 		$ch = curl_init();
 
+		$options = array();
+
 		// Set the request method.
-		$options[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
+		switch (strtoupper($method))
+		{
+			case 'GET':
+				$options[CURLOPT_HTTPGET] = true;
+				break;
+
+			case 'POST':
+				$options[CURLOPT_POST] = true;
+				break;
+
+			default:
+				$options[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
+				break;
+		}
 
 		// Don't wait for body when $method is HEAD
 		$options[CURLOPT_NOBODY] = ($method === 'HEAD');
@@ -91,6 +106,12 @@ class Curl extends AbstractTransport
 			$options[CURLOPT_HTTPHEADER] = $headerArray;
 		}
 
+		// Curl needs the accepted encoding header as option
+		if (isset($headers['Accept-Encoding']))
+		{
+			$options[CURLOPT_ENCODING] = $headers['Accept-Encoding'];
+		}
+
 		// If an explicit timeout is given user it.
 		if (isset($timeout))
 		{
@@ -121,6 +142,13 @@ class Curl extends AbstractTransport
 		if ($this->redirectsAllowed())
 		{
 			$options[CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
+		}
+
+		// Authentication, if needed
+		if (isset($this->options['userauth']) && isset($this->options['passwordauth']))
+		{
+			$options[CURLOPT_USERPWD]  = $this->options['userauth'] . ':' . $this->options['passwordauth'];
+			$options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 		}
 
 		// Set any custom transport options

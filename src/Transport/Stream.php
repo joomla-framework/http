@@ -12,6 +12,7 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
+use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
 
@@ -83,12 +84,6 @@ class Stream extends AbstractTransport
 		// Follow redirects.
 		$options['follow_location'] = (int) $this->getOption('follow_location', 1);
 
-		// Set any custom transport options
-		foreach ($this->getOption('transport.stream', []) as $key => $value)
-		{
-			$options[$key] = $value;
-		}
-
 		// Add the proxy configuration if enabled
 		if ($this->getOption('proxy.enabled', false))
 		{
@@ -118,6 +113,19 @@ class Stream extends AbstractTransport
 
 			// Add the headers string into the stream context options array.
 			$options['header'] = trim($headerString, "\r\n");
+		}
+
+		// Authentication, if needed
+		if ($uri instanceof Uri && isset($this->options['userauth']) && isset($this->options['passwordauth']))
+		{
+			$uri->setUser($this->options['userauth']);
+			$uri->setPass($this->options['passwordauth']);
+		}
+
+		// Set any custom transport options
+		foreach ($this->getOption('transport.stream', []) as $key => $value)
+		{
+			$options[$key] = $value;
 		}
 
 		// Get the current context options.
