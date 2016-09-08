@@ -8,8 +8,6 @@
 
 namespace Joomla\Http;
 
-use Joomla\Http\Exception\InvalidResponseCodeException;
-
 /**
  * Abstract transport class.
  *
@@ -76,13 +74,20 @@ abstract class AbstractTransport implements TransportInterface
 	 */
 	protected function processHeaders(array $headers)
 	{
-		$verifiedHeaders = array();
+		$verifiedHeaders = [];
 
 		// Add the response headers to the response object.
 		foreach ($headers as $header)
 		{
-			$pos = strpos($header, ':');
-			$verifiedHeaders[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
+			$pos     = strpos($header, ':');
+			$keyName = trim(substr($header, 0, $pos));
+
+			if (!isset($verifiedHeaders[$keyName]))
+			{
+				$verifiedHeaders[$keyName] = [];
+			}
+
+			$verifiedHeaders[$keyName][] = trim(substr($header, ($pos + 1)));
 		}
 
 		return $verifiedHeaders;
