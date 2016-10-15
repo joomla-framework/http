@@ -16,16 +16,21 @@ $http = (new HttpFactory)->getHttp();
 // Invoke the HEAD request.
 $response = $http->head('http://example.com');
 
-// The response code is included in the "code" property.
-// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-var_dump($response->code);
+// Get the response code, see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+var_dump($response->getStatusCode());
 
-// The response headers are included as an associative array in the "headers" property.
-var_dump($response->headers);
+// Get the response headers.
+var_dump($response->getHeaders());
 
-// The body of the response (not applicable for the HEAD method) is included in the "body" property.
-var_dump($response->body);
+// Get the body of the response (not applicable for the HEAD method).
+var_dump((string) $response->getBody());
 ```
+
+### URI Arguments
+
+In each of the `Http` class' methods, either a string or `Joomla\Uri\UriInterface` object may be passed representing the URI
+that should be requested. Internally this argument is converted to a `Joomla\Uri\Uri` object if a string is passed and an
+`InvalidArgumentException` is thrown if the URI parameter is not of one of these types.
 
 ### Making a GET request
 
@@ -45,7 +50,7 @@ with the request. In RESTful terms, a POST request is sent to create new data on
 
 ```php
 // Prepare the update data.
-$data = array('make' => 'Holden', model => 'EJ-Special');
+$data = ['make' => 'Holden', model => 'EJ-Special'];
 
 // Invoke the POST request.
 $response = $http->post('http://api.example.com/cars/1', $data);
@@ -59,7 +64,7 @@ with the request. In RESTful terms, a PUT request is typically sent to update ex
 
 ```php
 // Prepare the update data.
-$data = array('description' => 'My first car.', 'color' => 'gray');
+$data = ['description' => 'My first car.', 'color' => 'gray'];
 
 // Invoke the PUT request.
 $response = $http->put('http://api.example.com/cars/1', $data);
@@ -80,6 +85,11 @@ $response = $http->delete('http://api.example.com/cars/1');
 An HTTP TRACE request can be made using the trace method passing a URL and an optional key-value array of header variables.
 In RESTful terms, a TRACE request is to echo data back to the client for debugging or testing purposes.
 
+```php
+// Invoke the TRACE request.
+$response = $http->trace('http://api.example.com/cars/1');
+```
+
 ### Working with options
 
 Custom headers can be pased into each REST request, but they can also be set globally in the constructor options where the
@@ -89,16 +99,16 @@ headers set in the options.
 ```php
 
 // Configure a custom Accept header for all requests.
-$options = array(
+$options = [
     'headers.Accept' => 'application/vnd.github.html+json'
-);
+];
 
 // Make the request, knowing the custom Accept header will be used.
-$pull = $http->get('https://api.github.com/repos/joomla/joomla-platform/pulls/1');
+$pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1');
 
 // Set up custom headers for a single request.
-$headers = array('Accept' => 'application/foo');
+$headers = ['Accept' => 'application/foo'];
 
 // In this case, the Accept header in $headers will override the options header.
-$pull = $http->get('https://api.github.com/repos/joomla/joomla-platform/pulls/1', $headers);
+$pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1', $headers);
 ```

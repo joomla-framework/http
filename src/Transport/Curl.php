@@ -42,7 +42,7 @@ class Curl extends AbstractTransport
 		// Setup the cURL handle.
 		$ch = curl_init();
 
-		$options = array();
+		$options = [];
 
 		// Set the request method.
 		switch (strtoupper($method))

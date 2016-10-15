@@ -1,6 +1,6 @@
-## HttpFactory
+## Joomla\Http\HttpFactory
 
-The `HttpFactory` class provides an interface for creating [Http](Http.md) objects.
+The `HttpFactory` class provides an interface for creating [Joomla\Http\Http](Http.md) objects.
 
 ### Retrieving a Http object
 
@@ -10,6 +10,11 @@ The `getHttp()` method can be used to create `Http` objects from the factory.
 /*
  * @param   array|\ArrayAccess  $options   Client options array.
  * @param   array|string        $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+ *
+ * @return  \Joomla\Http\Http
+ *
+ * @throws  \InvalidArgumentException
+ * @throws  \RuntimeException
  */
 public function getHttp($options = array(), $adapters = null)
 ```
@@ -23,9 +28,12 @@ use Joomla\Http\HttpFactory;
 $http = (new HttpFactory)->getHttp();
 ```
 
-Note that a `RuntimeException` is thrown if no `TransportInterface` objects are available for use.
+Note that an `InvalidArgumentException` is thrown if the `$options` argument is not an array or an object implementing the
+[ArrayAccess](https://secure.php.net/manual/en/class.arrayaccess.php) interface.
 
-### Retrieving a TransportInterface object
+Note that a `RuntimeException` is thrown if no `Joomla\Http\TransportInterface` objects are available for use.
+
+### Retrieving a Joomla\Http\TransportInterface object
 
 The `getAvailableDriver()` method can be used to create [TransportInterface](TransportInterface.md) objects from the factory. 
 
@@ -33,6 +41,10 @@ The `getAvailableDriver()` method can be used to create [TransportInterface](Tra
 /*
  * @param   array|\ArrayAccess  $options  Options for creating TransportInterface object
  * @param   array|string        $default  Adapter (string) or queue of adapters (array) to use
+ *
+ * @return  TransportInterface|boolean  Interface sub-class or boolean false if no adapters are available
+ *
+ * @throws  \InvalidArgumentException
  */
 public function getAvailableDriver($options = array(), $default = null)
 ```
@@ -46,11 +58,17 @@ use Joomla\Http\HttpFactory;
 $transport = (new HttpFactory)->getAvailableDriver();
 ```
 
+Note that an `InvalidArgumentException` is thrown if the `$options` argument is not an array or an object implementing the ArrayAccess
+interface.
+
 ### Retrieving the available TransportInterface implementations
 
 The `getHttpTransports()` method can be used to retrieve a list of supported [TransportInterface](TransportInterface.md) objects from the factory. 
 
 ```php
+/**
+ * @return  array  An array of available transport handler types
+ */
 public function getHttpTransports()
 ```
 
