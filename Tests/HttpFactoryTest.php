@@ -7,11 +7,12 @@
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\HttpFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test class for Joomla\Http\HttpFactory.
  */
-class HttpFactoryTest extends \PHPUnit_Framework_TestCase
+class HttpFactoryTest extends TestCase
 {
 	/**
 	 * Object being tested
