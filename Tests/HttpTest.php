@@ -10,6 +10,7 @@ use Joomla\Http\Http;
 use Joomla\Uri\Uri;
 use Joomla\Test\TestHelper;
 use PHPUnit\Framework\TestCase;
+use Zend\Diactoros\Request;
 
 /**
  * Test class for Joomla\Http\Http.
@@ -317,6 +318,37 @@ class HttpTest extends TestCase
 		$this->assertThat(
 			$this->object->patch('http://example.com', array('key' => 'value'), array('testHeader')),
 			$this->equalTo('ReturnString')
+		);
+	}
+
+	/**
+	 * Tests the sendRequest method
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function testSendRequest()
+	{
+		$this->transport->expects($this->once())
+			->method('request')
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				'',
+				[
+					'Host'       => ['example.com'],
+					'testHeader' => [''],
+				]
+			)
+			->willReturn('ReturnString');
+
+		$request = new Request('http://example.com', 'GET');
+		$request = $request->withHeader('testHeader', '');
+
+		$this->assertEquals(
+			'ReturnString',
+			$this->object->sendRequest($request)
 		);
 	}
 }

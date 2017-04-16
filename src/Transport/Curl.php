@@ -95,11 +95,21 @@ class Curl extends AbstractTransport
 		// Build the headers string for the request.
 		$headerArray = [];
 
-		if (isset($headers))
+		if (!empty($headers))
 		{
 			foreach ($headers as $key => $value)
 			{
-				$headerArray[] = $key . ': ' . $value;
+				if (is_array($value))
+				{
+					foreach ($value as $header)
+					{
+						$headerArray[] = "$key: $header";
+					}
+				}
+				else
+				{
+					$headerArray[] = "$key: $value";
+				}
 			}
 
 			// Add the headers string into the stream context options array.
