@@ -235,9 +235,9 @@ class Http
 	}
 
 	/**
-	 * Send a request to a remote server based on a PSR-7 RequestInterface object
+	 * Send a request to a remote server based on a PSR-7 RequestInterface object.
 	 *
-	 * @param   RequestInterface  $request
+	 * @param   RequestInterface  $request  The PSR-7 request object.
 	 *
 	 * @return  Response
 	 *
