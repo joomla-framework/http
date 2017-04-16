@@ -248,19 +248,7 @@ class Http
 	 */
 	protected function makeTransportRequest($method, $url, $data = null, array $headers = array(), $timeout = null)
 	{
-		// Look for headers set in the options.
-		if (isset($this->options['headers']))
-		{
-			$temp = (array) $this->options['headers'];
-
-			foreach ($temp as $key => $val)
-			{
-				if (!isset($headers[$key]))
-				{
-					$headers[$key] = $val;
-				}
-			}
-		}
+		$headers = $this->buildRequestHeaders($headers);
 
 		// Look for timeout set in the options.
 		if ($timeout === null && isset($this->options['timeout']))
@@ -282,4 +270,29 @@ class Http
 
 		return $this->transport->request($method, $url, $data, $headers, $timeout, $userAgent);
 	}
+	
+	/**
+	 * @param array|null $headers
+	 * @return array
+	 */
+	protected function buildRequestHeaders($headers)
+	{
+		if (! is_array($headers))
+		{
+			$headers = array();
+		}
+		
+		if (isset($this->options['headers']))
+		{
+			if (! count($headers))
+			{
+				return $this->options['headers'];
+			}
+			
+			$headers = array_merge($headers, $this->options['headers']);
+		}
+		
+		return $headers;
+	}
+	
 }
