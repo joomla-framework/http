@@ -153,6 +153,12 @@ class Stream extends AbstractTransport
 			]
 		];
 
+		// Ensure the ssl peer name is verified where possible
+		if (version_compare(PHP_VERSION, '5.6.0') >= 0)
+		{
+			$streamOptions['ssl']['verify_peer_name'] = true;
+		}
+
 		// The cacert may be a file or path
 		$certpath = $this->getOption('stream.certpath', CaBundle::getSystemCaRootBundlePath());
 
