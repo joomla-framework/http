@@ -60,7 +60,7 @@ abstract class AbstractTransport implements TransportInterface
 	 */
 	protected function getOption(string $key, $default = null)
 	{
-		return isset($this->options[$key]) ? $this->options[$key] : $default;
+		return $this->options[$key] ?? $default;
 	}
 
 	/**

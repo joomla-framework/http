@@ -281,7 +281,7 @@ class Curl extends AbstractTransport
 	 *
 	 * @since   1.2.1
 	 */
-	private function redirectsAllowed()
+	private function redirectsAllowed(): bool
 	{
 		return true;
 	}
