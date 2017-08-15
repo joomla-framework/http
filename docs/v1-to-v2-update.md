@@ -2,7 +2,7 @@
 
 ### Minimum supported PHP version raised
 
-All framework packages now require PHP 5.5.9 or newer.
+All Framework packages now require PHP 7.0 or newer.
 
 ### PSR-7 Support
 
