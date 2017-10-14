@@ -243,7 +243,7 @@ class Http
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	public function sendRequest(RequestInterface $request): Response
+	public function sendRequest(RequestInterface $request)
 	{
 		return $this->makeTransportRequest(
 			$request->getMethod(),
