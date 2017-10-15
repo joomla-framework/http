@@ -245,10 +245,12 @@ class Http
 	 */
 	public function sendRequest(RequestInterface $request)
 	{
+		$data = $request->getBody()->getContents();
+
 		return $this->makeTransportRequest(
 			$request->getMethod(),
 			new Uri((string) $request->getUri()),
-			$request->getBody()->getContents(),
+			empty($data) ? null : $data,
 			$request->getHeaders()
 		);
 	}
