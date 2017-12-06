@@ -9,7 +9,7 @@ The HTTP package includes a suite of classes to facilitate RESTful HTTP requests
 
 ## Requirements
 
-* PHP 5.3.10 or later
+* PHP 7.0 or later
 * Joomla [URI](https://github.com/joomla-framework/uri) Package 1.0 or later
 
 ## Installation
