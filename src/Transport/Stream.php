@@ -84,6 +84,9 @@ class Stream extends AbstractTransport
 		// Follow redirects.
 		$options['follow_location'] = (int) $this->getOption('follow_location', 1);
 
+		// Configure protocol version, use transport's default if not set otherwise.
+		$options['follow_location'] = $this->getOption('protocolVersion', '1.0');
+
 		// Add the proxy configuration if enabled
 		if ($this->getOption('proxy.enabled', false))
 		{

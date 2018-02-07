@@ -84,9 +84,12 @@ class Socket extends AbstractTransport
 			$headers['Content-Length'] = strlen($data);
 		}
 
+		// Configure protocol version, use transport's default if not set otherwise.
+		$protocolVersion = $this->getOption('protocolVersion', '1.0');
+
 		// Build the request payload.
 		$request = [];
-		$request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/1.0';
+		$request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/' . $protocolVersion;
 		$request[] = 'Host: ' . $uri->getHost();
 
 		// If an explicit user agent is given use it.
