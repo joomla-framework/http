@@ -25,14 +25,10 @@ matrix:
     - php: 7.2
     - php: nightly
 
-before_install:
-  - sh -e .travis/scripts/apt-get.sh
-  - sh -e .travis/scripts/apache2-vhost.sh
-  - sh -e .travis/scripts/apache2-configure.sh
-
 before_script:
   - composer self-update
   - composer update $COMPOSER_FLAGS
+  - php -S 127.0.0.1:8080
 
 script:
   - vendor/bin/phpunit --configuration phpunit.travis.xml
