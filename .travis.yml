@@ -28,8 +28,7 @@ matrix:
 before_script:
   - composer self-update
   - composer update $COMPOSER_FLAGS
-  - php -S 127.0.0.1:8080
 
 script:
-  - vendor/bin/phpunit --configuration phpunit.travis.xml
+  - php -S 127.0.0.1:8080 & vendor/bin/phpunit --configuration phpunit.travis.xml
   - if [ "$RUN_PHPCS" == "yes" ]; then vendor/bin/phpcs --config-set installed_paths vendor/joomla/coding-standards && vendor/bin/phpcs -p --report=full --extensions=php --standard=ruleset.xml src/; fi;
