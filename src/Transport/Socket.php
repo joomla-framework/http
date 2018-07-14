@@ -50,7 +50,7 @@ class Socket extends AbstractTransport
 		$connection = $this->connect($uri, $timeout);
 
 		// Make sure the connection is alive and valid.
-		if (!is_resource($connection))
+		if (!\is_resource($connection))
 		{
 			throw new \RuntimeException('Not connected to server.');
 		}
@@ -81,7 +81,7 @@ class Socket extends AbstractTransport
 			}
 
 			// Add the relevant headers.
-			$headers['Content-Length'] = strlen($data);
+			$headers['Content-Length'] = \strlen($data);
 		}
 
 		// Configure protocol version, use transport's default if not set otherwise.
@@ -246,7 +246,7 @@ class Socket extends AbstractTransport
 		$key = md5($host . $port);
 
 		// If the connection already exists, use it.
-		if (!empty($this->connections[$key]) && is_resource($this->connections[$key]))
+		if (!empty($this->connections[$key]) && \is_resource($this->connections[$key]))
 		{
 			// Connection reached EOF, cannot be used anymore
 			$meta = stream_get_meta_data($this->connections[$key]);

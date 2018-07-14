@@ -63,7 +63,7 @@ class Stream extends AbstractTransport
 			}
 
 			// Add the relevant headers.
-			$headers['Content-Length'] = strlen($options['content']);
+			$headers['Content-Length'] = \strlen($options['content']);
 		}
 
 		// If an explicit timeout is given user it.

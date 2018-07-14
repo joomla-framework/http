@@ -42,6 +42,9 @@ class Curl extends AbstractTransport
 		// Setup the cURL handle.
 		$ch = curl_init();
 
+		// Initialize the certificate store
+		$this->setCAOptionAndValue($ch);
+
 		$options = [];
 
 		// Set the request method.
@@ -88,7 +91,7 @@ class Curl extends AbstractTransport
 			// Add the relevant headers.
 			if (is_scalar($options[CURLOPT_POSTFIELDS]))
 			{
-				$headers['Content-Length'] = strlen($options[CURLOPT_POSTFIELDS]);
+				$headers['Content-Length'] = \strlen($options[CURLOPT_POSTFIELDS]);
 			}
 		}
 
@@ -180,7 +183,7 @@ class Curl extends AbstractTransport
 		$content = curl_exec($ch);
 
 		// Check if the content is a string. If it is not, it must be an error.
-		if (!is_string($content))
+		if (!\is_string($content))
 		{
 			$message = curl_error($ch);
 
@@ -200,6 +203,37 @@ class Curl extends AbstractTransport
 		curl_close($ch);
 
 		return $this->getResponse($content, $info);
+	}
+
+	/**
+	 * Configure the cURL resources with the appropriate root certificates.
+	 *
+	 * @param   resource  $ch  The cURL resource you want to configure the certificates on.
+	 *
+	 * @return  void
+	 *
+	 * @since   1.3.2
+	 */
+	protected function setCAOptionAndValue($ch)
+	{
+		if ($certpath = $this->getOption('curl.certpath'))
+		{
+			// Option is passed to a .PEM file.
+			curl_setopt($ch, CURLOPT_CAINFO, $certpath);
+
+			return;
+		}
+
+		$caPathOrFile = CaBundle::getSystemCaRootBundlePath();
+
+		if (is_dir($caPathOrFile) || (is_link($caPathOrFile) && is_dir(readlink($caPathOrFile))))
+		{
+			curl_setopt($ch, CURLOPT_CAPATH, $caPathOrFile);
+
+			return;
+		}
+
+		curl_setopt($ch, CURLOPT_CAINFO, $caPathOrFile);
 	}
 
 	/**
@@ -251,7 +285,7 @@ class Curl extends AbstractTransport
 		// Get the response code from the first offset of the response headers.
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
 
-		$code = count($matches) ? $matches[0] : null;
+		$code = \count($matches) ? $matches[0] : null;
 
 		if (!is_numeric($code))
 		{
@@ -301,7 +335,7 @@ class Curl extends AbstractTransport
 
 			case '2.0':
 			case '2':
-				if (defined('CURL_HTTP_VERSION_2'))
+				if (\defined('CURL_HTTP_VERSION_2'))
 				{
 					return CURL_HTTP_VERSION_2;
 				}
