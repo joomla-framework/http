@@ -12,6 +12,7 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
 
@@ -52,14 +53,17 @@ class Curl extends AbstractTransport
 		{
 			case 'GET':
 				$options[CURLOPT_HTTPGET] = true;
+
 				break;
 
 			case 'POST':
 				$options[CURLOPT_POST] = true;
+
 				break;
 
 			default:
 				$options[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
+
 				break;
 		}
 
@@ -78,8 +82,8 @@ class Curl extends AbstractTransport
 				$options[CURLOPT_POSTFIELDS] = $data;
 			}
 			else
-			// Otherwise we need to encode the value first.
 			{
+				// Otherwise we need to encode the value first.
 				$options[CURLOPT_POSTFIELDS] = http_build_query($data);
 			}
 
@@ -128,7 +132,7 @@ class Curl extends AbstractTransport
 		// If an explicit timeout is given user it.
 		if (isset($timeout))
 		{
-			$options[CURLOPT_TIMEOUT] = (int) $timeout;
+			$options[CURLOPT_TIMEOUT]        = (int) $timeout;
 			$options[CURLOPT_CONNECTTIMEOUT] = (int) $timeout;
 		}
 
@@ -311,7 +315,7 @@ class Curl extends AbstractTransport
 	 */
 	public static function isSupported()
 	{
-		return function_exists('curl_version') && curl_version();
+		return \function_exists('curl_version') && curl_version();
 	}
 
 	/**

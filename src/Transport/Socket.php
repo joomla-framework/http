@@ -11,8 +11,8 @@ namespace Joomla\Http\Transport;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\UriInterface;
-use Joomla\Uri\Uri;
 use Zend\Diactoros\Stream as StreamResponse;
 
 /**
@@ -88,7 +88,7 @@ class Socket extends AbstractTransport
 		$protocolVersion = $this->getOption('protocolVersion', '1.0');
 
 		// Build the request payload.
-		$request = [];
+		$request   = [];
 		$request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/' . $protocolVersion;
 		$request[] = 'Host: ' . $uri->getHost();
 
@@ -101,7 +101,7 @@ class Socket extends AbstractTransport
 		// If we have a username then we include basic authentication credentials.
 		if ($uri->getUser())
 		{
-			$authString = $uri->getUser() . ':' . $uri->getPass();
+			$authString               = $uri->getUser() . ':' . $uri->getPass();
 			$headers['Authorization'] = 'Basic ' . base64_encode($authString);
 		}
 
@@ -225,7 +225,7 @@ class Socket extends AbstractTransport
 	protected function connect(UriInterface $uri, $timeout = null)
 	{
 		$errno = null;
-		$err = null;
+		$err   = null;
 
 		// Get the host from the uri.
 		$host = ($uri->isSsl()) ? 'ssl://' . $uri->getHost() : $uri->getHost();
@@ -273,7 +273,7 @@ class Socket extends AbstractTransport
 
 		// Capture PHP errors
 		$php_errormsg = '';
-		$trackErrors = ini_get('track_errors');
+		$trackErrors  = ini_get('track_errors');
 		ini_set('track_errors', true);
 
 		// PHP sends a warning if the uri does not exists; we silence it and throw an exception instead.
@@ -318,6 +318,6 @@ class Socket extends AbstractTransport
 	 */
 	public static function isSupported()
 	{
-		return function_exists('fsockopen') && is_callable('fsockopen');
+		return \function_exists('fsockopen') && \is_callable('fsockopen');
 	}
 }

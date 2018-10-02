@@ -64,7 +64,7 @@ class HttpFactory
 			);
 		}
 
-		if (\is_null($default))
+		if ($default === null)
 		{
 			$availableAdapters = $this->getHttpTransports();
 		}
@@ -106,7 +106,7 @@ class HttpFactory
 	 */
 	public function getHttpTransports()
 	{
-		$names = [];
+		$names    = [];
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
 		/** @var $file \DirectoryIterator */

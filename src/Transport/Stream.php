@@ -12,6 +12,7 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
@@ -52,8 +53,8 @@ class Stream extends AbstractTransport
 				$options['content'] = $data;
 			}
 			else
-			// Otherwise we need to encode the value first.
 			{
+				// Otherwise we need to encode the value first.
 				$options['content'] = http_build_query($data);
 			}
 
@@ -98,7 +99,7 @@ class Stream extends AbstractTransport
 			}
 
 			// If authentication details are provided, add those as well
-			if ($this->getOption('proxy.port') && $this->getOption('proxy.password'))
+			if ($this->getOption('proxy.user') && $this->getOption('proxy.password'))
 			{
 				$headers['Proxy-Authorization'] = 'Basic ' . base64_encode($this->getOption('proxy.user') . ':' . $this->getOption('proxy.password'));
 			}
@@ -173,7 +174,7 @@ class Stream extends AbstractTransport
 
 		// Capture PHP errors
 		$php_errormsg = '';
-		$trackErrors = ini_get('track_errors');
+		$trackErrors  = ini_get('track_errors');
 		ini_set('track_errors', true);
 
 		// Open the stream for reading.
@@ -261,6 +262,6 @@ class Stream extends AbstractTransport
 	 */
 	public static function isSupported()
 	{
-		return function_exists('fopen') && is_callable('fopen') && ini_get('allow_url_fopen');
+		return \function_exists('fopen') && \is_callable('fopen') && ini_get('allow_url_fopen');
 	}
 }
