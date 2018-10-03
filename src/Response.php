@@ -55,7 +55,5 @@ class Response extends PsrResponse
 			' on line ' . $trace[0]['line'],
 			E_USER_NOTICE
 		);
-
-		return;
 	}
 }

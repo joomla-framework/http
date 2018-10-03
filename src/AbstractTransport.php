@@ -35,7 +35,7 @@ abstract class AbstractTransport implements TransportInterface
 	{
 		if (!static::isSupported())
 		{
-			throw new \RuntimeException(sprintf('The %s transport is not supported in this environment.', get_class($this)));
+			throw new \RuntimeException(sprintf('The %s transport is not supported in this environment.', \get_class($this)));
 		}
 
 		if (!\is_array($options) && !($options instanceof \ArrayAccess))

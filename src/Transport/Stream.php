@@ -12,7 +12,6 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
-use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
@@ -112,7 +111,7 @@ class Stream extends AbstractTransport
 
 			foreach ($headers as $key => $value)
 			{
-				if (is_array($value))
+				if (\is_array($value))
 				{
 					foreach ($value as $header)
 					{

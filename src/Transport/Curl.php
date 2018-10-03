@@ -12,7 +12,6 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
-use Joomla\Http\TransportInterface;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
 
@@ -106,7 +105,7 @@ class Curl extends AbstractTransport
 		{
 			foreach ($headers as $key => $value)
 			{
-				if (is_array($value))
+				if (\is_array($value))
 				{
 					foreach ($value as $header)
 					{
@@ -270,7 +269,7 @@ class Curl extends AbstractTransport
 		else
 		{
 			// Get the number of redirects that occurred.
-			$redirects = isset($info['redirect_count']) ? $info['redirect_count'] : 0;
+			$redirects = $info['redirect_count'] ?? 0;
 
 			/*
 			 * Split the response into headers and body. If cURL encountered redirects, the headers for the redirected requests will
