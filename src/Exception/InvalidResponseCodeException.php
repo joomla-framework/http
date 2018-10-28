@@ -8,11 +8,13 @@
 
 namespace Joomla\Http\Exception;
 
+use Psr\Http\Client\ClientExceptionInterface;
+
 /**
  * Exception representing an invalid or undefined HTTP response code
  *
  * @since  1.2.0
  */
-class InvalidResponseCodeException extends \UnexpectedValueException
+class InvalidResponseCodeException extends \UnexpectedValueException implements ClientExceptionInterface
 {
 }
