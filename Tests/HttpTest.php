@@ -7,6 +7,7 @@
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\Http;
+use Joomla\Http\Response;
 use Joomla\Uri\Uri;
 use Joomla\Test\TestHelper;
 use PHPUnit\Framework\TestCase;
@@ -208,7 +209,7 @@ class HttpTest extends TestCase
 	 * @since   1.0
 	 *
 	 * @expectedException  \InvalidArgumentException
-	 * @expectedExceptionMessage  A string or UriInterface object must be provided, a "array" was provided.
+	 * @expectedExceptionMessage  A string or Joomla\Uri\UriInterface object must be provided, a "array" was provided.
 	 */
 	public function testGetWithInvalidUrl()
 	{
@@ -330,6 +331,8 @@ class HttpTest extends TestCase
 	 */
 	public function testSendRequest()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
 			->with(
@@ -341,13 +344,13 @@ class HttpTest extends TestCase
 					'testHeader' => [''],
 				]
 			)
-			->willReturn('ReturnString');
+			->willReturn($response);
 
 		$request = new Request('http://example.com', 'GET');
 		$request = $request->withHeader('testHeader', '');
 
-		$this->assertEquals(
-			'ReturnString',
+		$this->assertSame(
+			$response,
 			$this->object->sendRequest($request)
 		);
 	}
