@@ -2,6 +2,8 @@
 
 The HTTP package includes a suite of classes to facilitate RESTful HTTP requests over a variety of transport protocols.
 All methods return a [Response](classes/Response.md) object which is [PSR-7](http://www.php-fig.org/psr/psr-7/) compliant.
+Additionally, the main `Http` class provides support for sending requests as covered by the [PSR-18](http://www.php-fig.org/psr/psr-18/)
+`ClientInterface`.
 
 ### Making a HEAD request
 

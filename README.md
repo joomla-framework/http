@@ -5,12 +5,12 @@
 [![Latest Unstable Version](https://poser.pugx.org/joomla/http/v/unstable)](https://packagist.org/packages/joomla/http)
 [![License](https://poser.pugx.org/joomla/http/license)](https://packagist.org/packages/joomla/http)
 
-The HTTP package includes a suite of classes to facilitate RESTful HTTP requests over a variety of transport protocols.
+The HTTP package includes a [PSR-18](http://www.php-fig.org/psr/psr-18/) compatible HTTP client to facilitate RESTful HTTP requests
+over a variety of transport protocols.
 
 ## Requirements
 
 * PHP 7.0 or later
-* Joomla [URI](https://github.com/joomla-framework/uri) Package 1.0 or later
 
 ## Installation
 

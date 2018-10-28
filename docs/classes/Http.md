@@ -1,6 +1,7 @@
 ## Joomla\Http\Http
 
-The `Http` class provides methods for making RESTful requests.
+The `Http` class provides methods for making RESTful requests. The class provides a [PSR-18](http://www.php-fig.org/psr/psr-18/) compliant interface
+for making requests as well.
 
 ### Construction
 
