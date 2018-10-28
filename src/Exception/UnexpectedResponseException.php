@@ -9,13 +9,14 @@
 namespace Joomla\Http\Exception;
 
 use Joomla\Http\Response;
+use Psr\Http\Client\ClientExceptionInterface;
 
 /**
  * Exception representing an unexpected response
  *
  * @since  1.2.0
  */
-class UnexpectedResponseException extends \DomainException
+class UnexpectedResponseException extends \DomainException implements ClientExceptionInterface
 {
 	/**
 	 * The Response object.

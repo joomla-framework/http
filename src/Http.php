@@ -10,14 +10,16 @@ namespace Joomla\Http;
 
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * HTTP client class.
  *
  * @since  1.0
  */
-class Http
+class Http implements ClientInterface
 {
 	/**
 	 * Options for the HTTP client.
@@ -63,7 +65,7 @@ class Http
 			// Ensure the transport is a TransportInterface instance or bail out
 			if (!($transport instanceof TransportInterface))
 			{
-				throw new \InvalidArgumentException('A valid TransportInterface object was not set.');
+				throw new \InvalidArgumentException(sprintf('A valid %s object was not set.', TransportInterface::class));
 			}
 		}
 
@@ -235,15 +237,15 @@ class Http
 	}
 
 	/**
-	 * Send a request to a remote server based on a PSR-7 RequestInterface object.
+	 * Sends a PSR-7 request and returns a PSR-7 response.
 	 *
 	 * @param   RequestInterface  $request  The PSR-7 request object.
 	 *
-	 * @return  Response
+	 * @return  ResponseInterface|Response
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	public function sendRequest(RequestInterface $request)
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
 		$data = $request->getBody()->getContents();
 
@@ -300,7 +302,13 @@ class Http
 		}
 		elseif (!($url instanceof UriInterface))
 		{
-			throw new \InvalidArgumentException(sprintf('A string or UriInterface object must be provided, a "%s" was provided.', \gettype($url)));
+			throw new \InvalidArgumentException(
+				sprintf(
+					'A string or %s object must be provided, a "%s" was provided.',
+					UriInterface::class,
+					\gettype($url)
+				)
+			);
 		}
 
 		return $this->transport->request($method, $url, $data, $headers, $timeout, $userAgent);
