@@ -326,7 +326,7 @@ class Curl extends AbstractTransport
 	 *
 	 * @since   1.3.1
 	 */
-	private function mapProtocolVersion($version)
+	private function mapProtocolVersion(string $version): int
 	{
 		switch ($version)
 		{
