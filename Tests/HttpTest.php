@@ -8,33 +8,35 @@ namespace Joomla\Http\Tests;
 
 use Joomla\Http\Http;
 use Joomla\Http\Response;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
-use Joomla\Test\TestHelper;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\Request;
 
 /**
  * Test class for Joomla\Http\Http.
- *
- * @since  1.0
  */
 class HttpTest extends TestCase
 {
 	/**
-	 * @var    array  Options for the Http object.
-	 * @since  1.0
+	 * Options for the Http object.
+	 *
+	 * @var  array
 	 */
-	protected $options;
+	protected $options = [];
 
 	/**
-	 * @var    Transport  Mock transport object.
-	 * @since  1.0
+	 * Mock transport object.
+	 *
+	 * @var  TransportInterface|MockObject
 	 */
 	protected $transport;
 
 	/**
-	 * @var    Http  Object under test.
-	 * @since  1.0
+	 * Object under test.
+	 *
+	 * @var  Http
 	 */
 	protected $object;
 
@@ -43,291 +45,288 @@ class HttpTest extends TestCase
 	 * This method is called before a test is executed.
 	 *
 	 * @return  void
-	 *
-	 * @since   1.0
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
-		static $classNumber = 1;
-		$this->options = array();
-
-		$this->transport = $this->getMockBuilder('Joomla\Http\TransportInterface')
-			->setConstructorArgs(array($this->options))
-			->getMock();
+		$this->transport = $this->createMock(TransportInterface::class);
 
 		$this->object = new Http($this->options, $this->transport);
 	}
 
 	/**
 	 * Tests the constructor to ensure only arrays or ArrayAccess objects are allowed
-	 *
-	 * @return  void
-	 *
-	 * @expectedException  \InvalidArgumentException
 	 */
 	public function testConstructorDisallowsNonArrayObjects()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+
 		new Http(new \stdClass);
 	}
 
 	/**
-	 * Tests the getOption method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * Tests the getOption and setOption methods
 	 */
-	public function testGetOption()
+	public function testOptionManagement()
 	{
 		$this->object->setOption('testKey', 'testValue');
 
-		$value = TestHelper::getValue($this->object, 'options');
-
-		$this->assertThat(
-			$value['testKey'],
-			$this->equalTo('testValue')
-		);
-	}
-
-	/**
-	 * Tests the setOption method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 */
-	public function testSetOption()
-	{
-		TestHelper::setValue(
-			$this->object, 'options', array(
-				'testKey' => 'testValue'
-			)
-		);
-
-		$this->assertThat(
-			$this->object->getOption('testKey'),
-			$this->equalTo('testValue')
+		$this->assertSame(
+			'testValue',
+			$this->object->getOption('testKey')
 		);
 	}
 
 	/**
 	 * Tests the options method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testOptions()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('OPTIONS', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with('OPTIONS', new Uri('http://example.com'), null, ['test' => 'testHeader'])
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->options('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->options('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the head method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testHead()
 	{
 		// Set header option
-		$this->object->setOption('headers', array('option' => 'optionHeader'));
+		$this->object->setOption('headers', ['option' => 'optionHeader']);
+
+		$response = new Response;
 
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('HEAD', new Uri('http://example.com'), null, array('test' => 'testHeader', 'option' => 'optionHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'HEAD',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test'   => 'testHeader',
+					'option' => 'optionHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->head('http://example.com', array('test' => 'testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->head('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the get method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testGet()
 	{
 		// Set timeout option
 		$this->object->setOption('timeout', 100);
 
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('GET', new Uri('http://example.com'), null, array('testHeader'), 100)
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				],
+				100
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->get('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->get('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the get method with an injected Uri object
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testGetWithUri()
 	{
 		// Set timeout option
 		$this->object->setOption('timeout', 100);
 
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('GET', new Uri('http://example.com'), null, array('testHeader'), 100)
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				],
+				100
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->get(new Uri('http://example.com'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->get(new Uri('http://example.com'), ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the get method with an invalid object for the URL
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 *
-	 * @expectedException  \InvalidArgumentException
-	 * @expectedExceptionMessage  A string or Joomla\Uri\UriInterface object must be provided, a "array" was provided.
 	 */
 	public function testGetWithInvalidUrl()
 	{
-		// Set timeout option
-		$this->object->setOption('timeout', 100);
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('A string or Joomla\Uri\UriInterface object must be provided, a "array" was provided.');
 
-		$this->assertThat(
-			$this->object->get(array(), array('testHeader')),
-			$this->equalTo('ReturnString')
-		);
+		$this->object->get([]);
 	}
 
 	/**
 	 * Tests the post method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testPost()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('POST', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'POST',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->post('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->post('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the put method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testPut()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('PUT', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'PUT',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->put('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->put('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the delete method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testDelete()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('DELETE', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'DELETE',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->delete('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->delete('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the trace method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testTrace()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('TRACE', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'TRACE',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->trace('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->trace('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the patch method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testPatch()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('PATCH', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'PATCH',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->patch('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->patch('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
 		);
 	}
 
 	/**
 	 * Tests the sendRequest method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
 	 */
 	public function testSendRequest()
 	{

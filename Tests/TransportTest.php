@@ -6,6 +6,10 @@
 
 namespace Joomla\Http\Tests;
 
+use Joomla\Http\Transport\Curl;
+use Joomla\Http\Transport\Socket;
+use Joomla\Http\Transport\Stream;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use PHPUnit\Framework\TestCase;
 
@@ -17,18 +21,20 @@ use PHPUnit\Framework\TestCase;
 class TransportTest extends TestCase
 {
 	/**
-	 * @var    array  Options for the Transport object.
-	 * @since  1.0
+	 * Options for the Transport object.
+	 *
+	 * @var  array
 	 */
-	protected $options = array(
-		'transport.curl'   => array(CURLOPT_SSL_VERIFYPEER => false),
-		'transport.socket' => array('X-Joomla-Test: true'),
-		'transport.stream' => array('ignore_errors' => true)
-	);
+	protected $options = [
+		'transport.curl'   => [CURLOPT_SSL_VERIFYPEER => false],
+		'transport.socket' => ['X-Joomla-Test: true'],
+		'transport.stream' => ['ignore_errors' => true],
+	];
 
 	/**
-	 * @var    string  The URL string for the HTTP stub.
-	 * @since  1.0
+	 * The URL string for the HTTP stub.
+	 *
+	 * @var  string
 	 */
 	protected $stubUrl;
 
@@ -37,10 +43,8 @@ class TransportTest extends TestCase
 	 * This method is called before a test is executed.
 	 *
 	 * @return  void
-	 *
-	 * @since   1.0
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -48,26 +52,20 @@ class TransportTest extends TestCase
 		{
 			$this->markTestSkipped('The Transport test stub has not been configured');
 		}
-		else
-		{
-			$this->stubUrl = \defined('JTEST_HTTP_STUB') ? JTEST_HTTP_STUB : getenv('JTEST_HTTP_STUB');
-		}
+
+		$this->stubUrl = \defined('JTEST_HTTP_STUB') ? JTEST_HTTP_STUB : getenv('JTEST_HTTP_STUB');
 	}
 
 	/**
 	 * Data provider for the request test methods.
 	 *
-	 * @return  array
-	 *
-	 * @since   1.0
+	 * @return  \Generator
 	 */
-	public function transportProvider()
+	public function transportProvider(): \Generator
 	{
-		return array(
-			'stream' => array('Joomla\\Http\\Transport\\Stream'),
-			'curl' => array('Joomla\\Http\\Transport\\Curl'),
-			'socket' => array('Joomla\\Http\\Transport\\Socket')
-		);
+		yield 'curl adapter'   => [Curl::class];
+		yield 'socket adapter' => [Socket::class];
+		yield 'stream adapter' => [Stream::class];
 	}
 
 	/**
@@ -75,13 +73,18 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @dataProvider       transportProvider
-	 * @expectedException  \InvalidArgumentException
+	 * @dataProvider  transportProvider
 	 */
-	public function testConstructorWithBadDataObject($transportClass)
+	public function testConstructorWithBadDataObject(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('The options param must be an array or implement the ArrayAccess interface.');
+
 		new $transportClass(new \stdClass);
 	}
 
@@ -90,27 +93,30 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestGet($transportClass)
+	public function testRequestGet(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
 
-		$response = $transport->request('get', new Uri($this->stubUrl));
+		$response = $transport->request('GET', new Uri($this->stubUrl));
 
-		$body = json_decode($response->body);
+		$body = json_decode((string) $response->getBody());
 
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(200)
+		$this->assertSame(
+			200,
+			$response->getStatusCode()
 		);
 
-		$this->assertThat(
-			$body->method,
-			$this->equalTo('GET')
+		$this->assertSame(
+			'GET',
+			$body->method
 		);
 	}
 
@@ -119,16 +125,21 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since           1.0
-	 * @dataProvider       transportProvider
-	 * @expectedException  RuntimeException
+	 * @dataProvider  transportProvider
 	 */
-	public function testBadDomainRequestGet($transportClass)
+	public function testBadDomainRequestGet(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		$this->expectException(\RuntimeException::class);
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
-		$response = $transport->request('get', new Uri('http://xommunity.joomla.org'));
+
+		$response = $transport->request('GET', new Uri('https://xommunity.joomla.org'));
 	}
 
 	/**
@@ -136,19 +147,23 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestGet404($transportClass)
+	public function testRequestGet404(string $transportClass)
 	{
-		$transport = new $transportClass($this->options);
-		$response = $transport->request('get', new Uri(str_replace('.php', '.html', $this->stubUrl)));
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
 
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(404)
+		/** @var TransportInterface $transport */
+		$transport = new $transportClass($this->options);
+
+		$response = $transport->request('GET', new Uri(str_replace('.php', '.html', $this->stubUrl)));
+
+		$this->assertSame(
+			404,
+			$response->getStatusCode()
 		);
 	}
 
@@ -157,27 +172,30 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestPut($transportClass)
+	public function testRequestPut(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
 
-		$response = $transport->request('put', new Uri($this->stubUrl));
+		$response = $transport->request('PUT', new Uri($this->stubUrl));
 
-		$body = json_decode($response->body);
+		$body = json_decode((string) $response->getBody());
 
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(200)
+		$this->assertSame(
+			200,
+			$response->getStatusCode()
 		);
 
-		$this->assertThat(
-			$body->method,
-			$this->equalTo('PUT')
+		$this->assertSame(
+			'PUT',
+			$body->method
 		);
 	}
 
@@ -186,37 +204,39 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestCredentials($transportClass)
+	public function testRequestCredentials(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
 
 		$uri = new Uri($this->stubUrl);
-		$credentialedUri = new Uri(
-			$uri->toString(array('scheme')) . 'username:password@' . $uri->toString(array('host', 'port', 'path', 'query', 'fragment'))
+		$uri->setUser('username');
+		$uri->setPass('password');
+
+		$response = $transport->request('GET', $uri);
+
+		$body = json_decode((string) $response->getBody());
+
+		$this->assertSame(
+			200,
+			$response->getStatusCode()
 		);
 
-		$response = $transport->request('get', $credentialedUri);
-
-		$body = json_decode($response->body);
-
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(200)
+		$this->assertSame(
+			'username',
+			$body->username
 		);
 
-		$this->assertThat(
-			$body->username,
-			$this->equalTo('username')
-		);
-
-		$this->assertThat(
-			$body->password,
-			$this->equalTo('password')
+		$this->assertSame(
+			'password',
+			$body->password
 		);
 	}
 
@@ -225,32 +245,35 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestPost($transportClass)
+	public function testRequestPost(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
 
-		$response = $transport->request('post', new Uri($this->stubUrl . '?test=okay'), array('key' => 'value'));
+		$response = $transport->request('POST', new Uri($this->stubUrl . '?test=okay'), ['key' => 'value']);
 
-		$body = json_decode($response->body);
+		$body = json_decode((string) $response->getBody());
 
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(200)
+		$this->assertSame(
+			200,
+			$response->getStatusCode()
 		);
 
-		$this->assertThat(
-			$body->method,
-			$this->equalTo('POST')
+		$this->assertSame(
+			'POST',
+			$body->method
 		);
 
-		$this->assertThat(
-			$body->post->key,
-			$this->equalTo('value')
+		$this->assertSame(
+			'value',
+			$body->post->key
 		);
 	}
 
@@ -259,32 +282,35 @@ class TransportTest extends TestCase
 	 *
 	 * @param   string  $transportClass  The transport class to test
 	 *
-	 * @return  void
-	 *
-	 * @since      1.0
 	 * @dataProvider  transportProvider
 	 */
-	public function testRequestPostScalar($transportClass)
+	public function testRequestPostScalar(string $transportClass)
 	{
+		if (!$transportClass::isSupported())
+		{
+			$this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+		}
+
+		/** @var TransportInterface $transport */
 		$transport = new $transportClass($this->options);
 
 		$response = $transport->request('post', new Uri($this->stubUrl . '?test=okay'), 'key=value');
 
-		$body = json_decode($response->body);
+		$body = json_decode((string) $response->getBody());
 
-		$this->assertThat(
-			$response->code,
-			$this->equalTo(200)
+		$this->assertSame(
+			200,
+			$response->getStatusCode()
 		);
 
-		$this->assertThat(
-			$body->method,
-			$this->equalTo('POST')
+		$this->assertSame(
+			'POST',
+			$body->method
 		);
 
-		$this->assertThat(
-			$body->post->key,
-			$this->equalTo('value')
+		$this->assertSame(
+			'value',
+			$body->post->key
 		);
 	}
 }

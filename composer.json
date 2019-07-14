@@ -15,8 +15,8 @@
     },
     "require-dev": {
         "joomla/coding-standards": "~2.0@alpha",
-        "joomla/test": "~1.0",
-        "phpunit/phpunit": "~6.3"
+        "joomla/test": "~2.0",
+        "phpunit/phpunit": "~8.2"
     },
     "suggest": {
         "ext-curl": "To use cURL for HTTP connections"

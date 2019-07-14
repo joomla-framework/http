@@ -6,7 +6,9 @@
 
 namespace Joomla\Http\Tests;
 
+use Joomla\Http\Http;
 use Joomla\Http\HttpFactory;
+use Joomla\Http\TransportInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,7 +28,7 @@ class HttpFactoryTest extends TestCase
 	 *
 	 * @return  void
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -41,7 +43,7 @@ class HttpFactoryTest extends TestCase
 	public function testGetHttp()
 	{
 		$this->assertInstanceOf(
-			'Joomla\\Http\\Http',
+			Http::class,
 			$this->instance->getHttp()
 		);
 	}
@@ -49,11 +51,12 @@ class HttpFactoryTest extends TestCase
 	/**
 	 * Tests the getHttp method to ensure only arrays or ArrayAccess objects are allowed
 	 *
-	 * @covers             Joomla\Http\HttpFactory::getHttp
-	 * @expectedException  \InvalidArgumentException
+	 * @covers  Joomla\Http\HttpFactory::getHttp
 	 */
 	public function testGetHttpDisallowsNonArrayObjects()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+
 		$this->instance->getHttp(new \stdClass);
 	}
 
@@ -61,12 +64,13 @@ class HttpFactoryTest extends TestCase
 	 * Tests the getHttp method.
 	 *
 	 * @covers  Joomla\Http\HttpFactory::getHttp
-	 * @expectedException RuntimeException
 	 */
 	public function testGetHttpException()
 	{
+		$this->expectException(\RuntimeException::class);
+
 		$this->assertInstanceOf(
-			'Joomla\\Http\\Http',
+			Http::class,
 			$this->instance->getHttp([], [])
 		);
 	}
@@ -79,7 +83,7 @@ class HttpFactoryTest extends TestCase
 	public function testGetAvailableDriver()
 	{
 		$this->assertInstanceOf(
-			'Joomla\\Http\\TransportInterface',
+			TransportInterface::class,
 			$this->instance->getAvailableDriver([], null)
 		);
 
@@ -104,11 +108,12 @@ class HttpFactoryTest extends TestCase
 	/**
 	 * Tests the getAvailableDriver method to ensure only arrays or ArrayAccess objects are allowed
 	 *
-	 * @covers             Joomla\Http\HttpFactory::getAvailableDriver
-	 * @expectedException  \InvalidArgumentException
+	 * @covers  Joomla\Http\HttpFactory::getAvailableDriver
 	 */
 	public function testGetAvailableDriverDisallowsNonArrayObjects()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+
 		$this->instance->getAvailableDriver(new \stdClass);
 	}
 
