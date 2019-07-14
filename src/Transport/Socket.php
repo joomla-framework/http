@@ -156,9 +156,9 @@ class Socket extends AbstractTransport
 		$content = $this->getResponse($content);
 
 		// Follow Http redirects
-		if ($content->code >= 301 && $content->code < 400 && isset($content->headers['Location']))
+		if ($content->getStatusCode() >= 301 && $content->getStatusCode() < 400 && $content->hasHeader('Location'))
 		{
-			return $this->request($method, new Uri($content->headers['Location']), $data, $headers, $timeout, $userAgent);
+			return $this->request($method, new Uri($content->getHeaderLine('Location')), $data, $headers, $timeout, $userAgent);
 		}
 
 		return $content;
