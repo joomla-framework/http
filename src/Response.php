@@ -33,27 +33,31 @@ class Response extends PsrResponse
 	 */
 	public function __get($name)
 	{
-		if (strtolower($name) === 'body')
+		switch (strtolower($name))
 		{
-			return (string) $this->getBody();
-		}
+			case 'body':
+				return (string) $this->getBody();
 
-		if (strtolower($name) === 'code')
-		{
-			return $this->getStatusCode();
-		}
+			case 'code':
+				return $this->getStatusCode();
 
-		if (strtolower($name) === 'headers')
-		{
-			return $this->getHeaders();
-		}
+			case 'headers':
+				return $this->getHeaders();
 
-		$trace = debug_backtrace();
-		trigger_error(
-			'Undefined property via __get(): ' . $name .
-			' in ' . $trace[0]['file'] .
-			' on line ' . $trace[0]['line'],
-			E_USER_NOTICE
-		);
+			default:
+				$trace = debug_backtrace();
+
+				trigger_error(
+					sprintf(
+						'Undefined property via __get(): %s in %s on line %s',
+						$name,
+						$trace[0]['file'],
+						$trace[0]['line']
+					),
+					E_USER_NOTICE
+				);
+
+				break;
+		}
 	}
 }
