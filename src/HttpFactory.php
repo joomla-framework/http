@@ -82,7 +82,7 @@ class HttpFactory
 
 		foreach ($availableAdapters as $adapter)
 		{
-			/** @var $class TransportInterface */
+			/** @var TransportInterface $class */
 			$class = __NAMESPACE__ . '\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
@@ -109,7 +109,7 @@ class HttpFactory
 		$names    = [];
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
-		/** @var $file \DirectoryIterator */
+		/** @var \DirectoryIterator $file */
 		foreach ($iterator as $file)
 		{
 			$fileName = $file->getFilename();
