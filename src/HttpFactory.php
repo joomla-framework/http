@@ -82,7 +82,6 @@ class HttpFactory
 
 		foreach ($availableAdapters as $adapter)
 		{
-			/** @var TransportInterface $class */
 			$class = __NAMESPACE__ . '\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
