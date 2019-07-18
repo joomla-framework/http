@@ -11,6 +11,7 @@ namespace Joomla\Http\Transport;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
+use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
 use Zend\Diactoros\Stream as StreamResponse;
 
@@ -284,7 +285,7 @@ class Socket extends AbstractTransport
 			if (!$php_errormsg)
 			{
 				// Error but nothing from php? Create our own
-				$php_errormsg = sprintf('Could not connect to resource: %s', $uri, $err, $errno);
+				$php_errormsg = sprintf('Could not connect to resource: %s', $uri);
 			}
 
 			// Restore error tracking to give control to the exception handler

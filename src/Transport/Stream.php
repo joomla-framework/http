@@ -184,8 +184,7 @@ class Stream extends AbstractTransport
 			if (!$php_errormsg)
 			{
 				// Error but nothing from php? Create our own
-				// @todo $err and $errno are undefined variables.
-				$php_errormsg = sprintf('Could not connect to resource: %s', $uri, $err, $errno);
+				$php_errormsg = sprintf('Could not connect to resource: %s', $uri);
 			}
 
 			// Restore error tracking to give control to the exception handler
