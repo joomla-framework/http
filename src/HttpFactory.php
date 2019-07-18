@@ -99,7 +99,7 @@ class HttpFactory
 	/**
 	 * Get the HTTP transport handlers
 	 *
-	 * @return  array  An array of available transport handler types
+	 * @return  string[]  An array of available transport handler types
 	 *
 	 * @since   1.0
 	 */
