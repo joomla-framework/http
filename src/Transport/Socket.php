@@ -300,11 +300,7 @@ class Socket extends AbstractTransport
 		// Since the connection was successful let's store it in case we need to use it later.
 		$this->connections[$key] = $connection;
 
-		// If an explicit timeout is set, set it.
-		if (isset($timeout))
-		{
-			stream_set_timeout($this->connections[$key], (int) $timeout);
-		}
+		stream_set_timeout($this->connections[$key], (int) $timeout);
 
 		return $this->connections[$key];
 	}
