@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2018 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -90,7 +90,11 @@ class Socket extends AbstractTransport
 		// Build the request payload.
 		$request   = [];
 		$request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/' . $protocolVersion;
-		$request[] = 'Host: ' . $uri->getHost();
+
+		if (!isset($headers['Host']))
+		{
+			$request[] = 'Host: ' . $uri->getHost();
+		}
 
 		// If an explicit user agent is given use it.
 		if (isset($userAgent))

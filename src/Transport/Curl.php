@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2018 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -51,23 +51,23 @@ class Curl extends AbstractTransport
 		switch (strtoupper($method))
 		{
 			case 'GET':
-				$options[CURLOPT_HTTPGET] = true;
+				$options[\CURLOPT_HTTPGET] = true;
 
 				break;
 
 			case 'POST':
-				$options[CURLOPT_POST] = true;
+				$options[\CURLOPT_POST] = true;
 
 				break;
 
 			default:
-				$options[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
+				$options[\CURLOPT_CUSTOMREQUEST] = strtoupper($method);
 
 				break;
 		}
 
 		// Don't wait for body when $method is HEAD
-		$options[CURLOPT_NOBODY] = ($method === 'HEAD');
+		$options[\CURLOPT_NOBODY] = ($method === 'HEAD');
 
 		// Initialize the certificate store
 		$options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', CaBundle::getSystemCaRootBundlePath());
@@ -78,12 +78,12 @@ class Curl extends AbstractTransport
 			// If the data is a scalar value simply add it to the cURL post fields.
 			if (is_scalar($data) || (isset($headers['Content-Type']) && strpos($headers['Content-Type'], 'multipart/form-data') === 0))
 			{
-				$options[CURLOPT_POSTFIELDS] = $data;
+				$options[\CURLOPT_POSTFIELDS] = $data;
 			}
 			else
 			{
 				// Otherwise we need to encode the value first.
-				$options[CURLOPT_POSTFIELDS] = http_build_query($data);
+				$options[\CURLOPT_POSTFIELDS] = http_build_query($data);
 			}
 
 			if (!isset($headers['Content-Type']))
@@ -92,9 +92,9 @@ class Curl extends AbstractTransport
 			}
 
 			// Add the relevant headers.
-			if (is_scalar($options[CURLOPT_POSTFIELDS]))
+			if (is_scalar($options[\CURLOPT_POSTFIELDS]))
 			{
-				$headers['Content-Length'] = \strlen($options[CURLOPT_POSTFIELDS]);
+				$headers['Content-Length'] = \strlen($options[\CURLOPT_POSTFIELDS]);
 			}
 		}
 
@@ -119,58 +119,58 @@ class Curl extends AbstractTransport
 			}
 
 			// Add the headers string into the stream context options array.
-			$options[CURLOPT_HTTPHEADER] = $headerArray;
+			$options[\CURLOPT_HTTPHEADER] = $headerArray;
 		}
 
 		// Curl needs the accepted encoding header as option
 		if (isset($headers['Accept-Encoding']))
 		{
-			$options[CURLOPT_ENCODING] = $headers['Accept-Encoding'];
+			$options[\CURLOPT_ENCODING] = $headers['Accept-Encoding'];
 		}
 
 		// If an explicit timeout is given user it.
 		if (isset($timeout))
 		{
-			$options[CURLOPT_TIMEOUT]        = (int) $timeout;
-			$options[CURLOPT_CONNECTTIMEOUT] = (int) $timeout;
+			$options[\CURLOPT_TIMEOUT]        = (int) $timeout;
+			$options[\CURLOPT_CONNECTTIMEOUT] = (int) $timeout;
 		}
 
 		// If an explicit user agent is given use it.
 		if (isset($userAgent))
 		{
-			$options[CURLOPT_USERAGENT] = $userAgent;
+			$options[\CURLOPT_USERAGENT] = $userAgent;
 		}
 
 		// Set the request URL.
-		$options[CURLOPT_URL] = (string) $uri;
+		$options[\CURLOPT_URL] = (string) $uri;
 
 		// We want our headers. :-)
-		$options[CURLOPT_HEADER] = true;
+		$options[\CURLOPT_HEADER] = true;
 
 		// Return it... echoing it would be tacky.
-		$options[CURLOPT_RETURNTRANSFER] = true;
+		$options[\CURLOPT_RETURNTRANSFER] = true;
 
 		// Override the Expect header to prevent cURL from confusing itself in its own stupidity.
 		// Link: http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
-		$options[CURLOPT_HTTPHEADER][] = 'Expect:';
+		$options[\CURLOPT_HTTPHEADER][] = 'Expect:';
 
 		// Follow redirects if server config allows
 		if ($this->redirectsAllowed())
 		{
-			$options[CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
+			$options[\CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
 		}
 
 		// Authentication, if needed
 		if ($this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$options[CURLOPT_USERPWD]  = $this->getOption('userauth') . ':' . $this->getOption('passwordauth');
-			$options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+			$options[\CURLOPT_USERPWD]  = $this->getOption('userauth') . ':' . $this->getOption('passwordauth');
+			$options[\CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 		}
 
 		// Configure protocol version
 		if ($protocolVersion = $this->getOption('protocolVersion'))
 		{
-			$options[CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($protocolVersion);
+			$options[\CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($protocolVersion);
 		}
 
 		// Set any custom transport options
@@ -222,7 +222,7 @@ class Curl extends AbstractTransport
 		if ($certpath = $this->getOption('curl.certpath'))
 		{
 			// Option is passed to a .PEM file.
-			curl_setopt($ch, CURLOPT_CAINFO, $certpath);
+			curl_setopt($ch, \CURLOPT_CAINFO, $certpath);
 
 			return;
 		}
@@ -231,12 +231,12 @@ class Curl extends AbstractTransport
 
 		if (is_dir($caPathOrFile) || (is_link($caPathOrFile) && is_dir(readlink($caPathOrFile))))
 		{
-			curl_setopt($ch, CURLOPT_CAPATH, $caPathOrFile);
+			curl_setopt($ch, \CURLOPT_CAPATH, $caPathOrFile);
 
 			return;
 		}
 
-		curl_setopt($ch, CURLOPT_CAINFO, $caPathOrFile);
+		curl_setopt($ch, \CURLOPT_CAINFO, $caPathOrFile);
 	}
 
 	/**
@@ -331,20 +331,20 @@ class Curl extends AbstractTransport
 		switch ($version)
 		{
 			case '1.0':
-				return CURL_HTTP_VERSION_1_0;
+				return \CURL_HTTP_VERSION_1_0;
 
 			case '1.1':
-				return CURL_HTTP_VERSION_1_1;
+				return \CURL_HTTP_VERSION_1_1;
 
 			case '2.0':
 			case '2':
 				if (\defined('CURL_HTTP_VERSION_2'))
 				{
-					return CURL_HTTP_VERSION_2;
+					return \CURL_HTTP_VERSION_2;
 				}
 		}
 
-		return CURL_HTTP_VERSION_NONE;
+		return \CURL_HTTP_VERSION_NONE;
 	}
 
 	/**
