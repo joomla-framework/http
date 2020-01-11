@@ -14,7 +14,7 @@ use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
-use Zend\Diactoros\Stream as StreamResponse;
+use Laminas\Diactoros\Stream as StreamResponse;
 
 /**
  * HTTP transport class for using PHP streams.

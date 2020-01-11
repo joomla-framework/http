@@ -10,9 +10,9 @@ use Joomla\Http\Http;
 use Joomla\Http\Response;
 use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
+use Laminas\Diactoros\Request;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Zend\Diactoros\Request;
 
 /**
  * Test class for Joomla\Http\Http.

@@ -8,7 +8,7 @@
 
 namespace Joomla\Http;
 
-use Zend\Diactoros\Response as PsrResponse;
+use Laminas\Diactoros\Response as PsrResponse;
 
 /**
  * HTTP response data object class.
