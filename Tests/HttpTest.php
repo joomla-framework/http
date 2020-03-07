@@ -56,7 +56,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the constructor to ensure only arrays or ArrayAccess objects are allowed
+	 * @testdox  The constructor disallows invalid data objects
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testConstructorDisallowsNonArrayObjects()
 	{
@@ -66,7 +68,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the getOption and setOption methods
+	 * @testdox  The driver's options can be managed
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testOptionManagement()
 	{
@@ -79,7 +83,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the options method
+	 * @testdox  A OPTIONS request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testOptions()
 	{
@@ -97,7 +103,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the head method
+	 * @testdox  A HEAD request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testHead()
 	{
@@ -126,7 +134,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the get method
+	 * @testdox  A GET request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGet()
 	{
@@ -155,7 +165,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the get method with an injected Uri object
+	 * @testdox  A GET request can be sent when passing a URI object
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGetWithUri()
 	{
@@ -184,7 +196,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the get method with an invalid object for the URL
+	 * @testdox  Sending a GET request fails with an invalid data type for the URI
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGetWithInvalidUrl()
 	{
@@ -195,7 +209,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the post method
+	 * @testdox  A POST request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPost()
 	{
@@ -222,7 +238,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the put method
+	 * @testdox  A PUT request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPut()
 	{
@@ -249,7 +267,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the delete method
+	 * @testdox  A DELETE request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testDelete()
 	{
@@ -274,7 +294,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the trace method
+	 * @testdox  A TRACE request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testTrace()
 	{
@@ -299,7 +321,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the patch method
+	 * @testdox  A PATCH request can be sent
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPatch()
 	{
@@ -326,7 +350,9 @@ class HttpTest extends TestCase
 	}
 
 	/**
-	 * Tests the sendRequest method
+	 * @testdox  A request can be sent using a PSR-18 RequestInterface
+	 *
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testSendRequest()
 	{

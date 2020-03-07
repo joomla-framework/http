@@ -36,9 +36,12 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getHttp method.
+	 * @testdox  A HTTP client can be created
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getHttp
+	 * @covers   Joomla\Http\HttpFactory
+	 * @uses     Joomla\Http\AbstractTransport
+	 * @uses     Joomla\Http\Http
+	 * @uses     Joomla\Http\Transport\Curl
 	 */
 	public function testGetHttp()
 	{
@@ -49,9 +52,9 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getHttp method to ensure only arrays or ArrayAccess objects are allowed
+	 * @testdox  A HTTP client can only be created with an appropriate options data type
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getHttp
+	 * @covers   Joomla\Http\HttpFactory
 	 */
 	public function testGetHttpDisallowsNonArrayObjects()
 	{
@@ -61,9 +64,9 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getHttp method.
+	 * @testdox  A HTTP client cannot be created when no transport driver is available
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getHttp
+	 * @covers  Joomla\Http\HttpFactory
 	 */
 	public function testGetHttpException()
 	{
@@ -76,9 +79,11 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getAvailableDriver method.
+	 * @testdox  A transport driver can be created
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getAvailableDriver
+	 * @covers   Joomla\Http\HttpFactory
+	 * @uses     Joomla\Http\AbstractTransport
+	 * @uses     Joomla\Http\Transport\Curl
 	 */
 	public function testGetAvailableDriver()
 	{
@@ -106,9 +111,9 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getAvailableDriver method to ensure only arrays or ArrayAccess objects are allowed
+	 * @testdox  A driver can only be created with an appropriate options data type
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getAvailableDriver
+	 * @covers   Joomla\Http\HttpFactory
 	 */
 	public function testGetAvailableDriverDisallowsNonArrayObjects()
 	{
@@ -118,9 +123,9 @@ class HttpFactoryTest extends TestCase
 	}
 
 	/**
-	 * Tests the getHttpTransports method.
+	 * @testdox  The list of transport drivers is returned
 	 *
-	 * @covers  Joomla\Http\HttpFactory::getHttpTransports
+	 * @covers   Joomla\Http\HttpFactory
 	 */
 	public function testGetHttpTransports()
 	{

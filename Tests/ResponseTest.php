@@ -16,7 +16,9 @@ use PHPUnit\Framework\TestCase;
 class ResponseTest extends TestCase
 {
 	/**
-	 * Tests deprecated access to the response code.
+	 * @testdox  The status code can be accessed through the deprecated property access
+	 *
+	 * @covers   Joomla\Http\Response
 	 */
 	public function testReadResponseCode()
 	{
@@ -29,7 +31,9 @@ class ResponseTest extends TestCase
 	}
 
 	/**
-	 * Tests deprecated access to the response body.
+	 * @testdox  The response body can be accessed through the deprecated property access
+	 *
+	 * @covers   Joomla\Http\Response
 	 */
 	public function testReadResponseBody()
 	{
@@ -42,7 +46,9 @@ class ResponseTest extends TestCase
 	}
 
 	/**
-	 * Tests deprecated access to the response headers.
+	 * @testdox  The response headers can be accessed through the deprecated property access
+	 *
+	 * @covers   Joomla\Http\Response
 	 */
 	public function testReadResponseHeaders()
 	{
@@ -55,7 +61,9 @@ class ResponseTest extends TestCase
 	}
 
 	/**
-	 * Tests reading an unknown property creates an error.
+	 * @testdox  Reading an unknown property generates an error
+	 *
+	 * @covers   Joomla\Http\Response
 	 */
 	public function testReadUnknownProperty()
 	{
@@ -69,6 +77,7 @@ class ResponseTest extends TestCase
 		}
 		catch (Notice $exception)
 		{
+			$this->assertSame(E_USER_NOTICE, $exception->getCode());
 			$this->assertStringStartsWith('Undefined property via __get(): foo', $exception->getMessage());
 		}
 	}

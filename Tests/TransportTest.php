@@ -69,9 +69,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the transport constructor to ensure only arrays and ArrayAccess objects are allowed
+	 * @testdox  A transport can only be created with an appropriate data type for the options
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -89,9 +94,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a get request
+	 * @testdox  A transport can make a GET request
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -121,9 +131,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a get request with a bad domain
+	 * @testdox  A transport fails to make a GET request to an invalid domain
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -143,9 +158,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a get request for non existant url
+	 * @testdox  A transport fails to make a GET request to an invalid URL
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -168,9 +188,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a put request
+	 * @testdox  A transport can make a GET request
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -200,9 +225,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with credentials supplied
+	 * @testdox  A transport can make a GET request with basic authentication
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -241,9 +271,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a post request and array data
+	 * @testdox  A transport can make a POST request with an array as the request data
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
@@ -278,9 +313,14 @@ class TransportTest extends TestCase
 	}
 
 	/**
-	 * Tests the request method with a post request and scalar data
+	 * @testdox  A transport can make a POST request with a scalar value as the request data
 	 *
-	 * @param   string  $transportClass  The transport class to test
+	 * @param    string  $transportClass  The transport class to test
+	 *
+	 * @covers   Joomla\Http\Transport\Curl
+	 * @covers   Joomla\Http\Transport\Socket
+	 * @covers   Joomla\Http\Transport\Stream
+	 * @uses     Joomla\Http\AbstractTransport
 	 *
 	 * @dataProvider  transportProvider
 	 */
