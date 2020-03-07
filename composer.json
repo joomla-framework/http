@@ -7,16 +7,16 @@
     "license": "GPL-2.0-or-later",
     "require": {
         "php": "^7.2.5",
-        "joomla/uri": "~1.0|~2.0",
-        "composer/ca-bundle": "~1.0",
+        "joomla/uri": "^1.0|^2.0",
+        "composer/ca-bundle": "^1.0",
         "laminas/laminas-diactoros": "^2.2.2",
-        "psr/http-client": "~1.0",
-        "psr/http-message": "~1.0"
+        "psr/http-client": "^1.0",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "joomla/coding-standards": "~2.0@alpha",
-        "joomla/test": "~2.0",
-        "phpunit/phpunit": "~8.2"
+        "joomla/coding-standards": "^2.0@alpha",
+        "joomla/test": "^2.0",
+        "phpunit/phpunit": "^8.5|^9.0"
     },
     "suggest": {
         "ext-curl": "To use cURL for HTTP connections"
