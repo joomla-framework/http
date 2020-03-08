@@ -7,7 +7,6 @@
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\Response;
-use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,11 +21,9 @@ class ResponseTest extends TestCase
 	 */
 	public function testReadResponseCode()
 	{
-		$response = new Response('php://memory', 200, []);
-
 		$this->assertSame(
 			200,
-			$response->code
+			(new Response('php://memory', 200, []))->code
 		);
 	}
 
@@ -37,11 +34,9 @@ class ResponseTest extends TestCase
 	 */
 	public function testReadResponseBody()
 	{
-		$response = new Response('php://memory', 200, []);
-
 		$this->assertSame(
 			'',
-			$response->body
+			(new Response('php://memory', 200, []))->body
 		);
 	}
 
@@ -52,11 +47,9 @@ class ResponseTest extends TestCase
 	 */
 	public function testReadResponseHeaders()
 	{
-		$response = new Response('php://memory', 200, ['Location' => ['https://example.com']]);
-
 		$this->assertSame(
 			['Location' => ['https://example.com']],
-			$response->headers
+			(new Response('php://memory', 200, ['Location' => ['https://example.com']]))->headers
 		);
 	}
 
@@ -67,18 +60,8 @@ class ResponseTest extends TestCase
 	 */
 	public function testReadUnknownProperty()
 	{
-		$response = new Response('php://memory', 200, ['Location' => ['https://example.com']]);
+		$this->expectNotice();
 
-		try
-		{
-			$response->foo;
-
-			$this->fail('Reading an unknown property should generate an error');
-		}
-		catch (Notice $exception)
-		{
-			$this->assertSame(E_USER_NOTICE, $exception->getCode());
-			$this->assertStringStartsWith('Undefined property via __get(): foo', $exception->getMessage());
-		}
+		(new Response('php://memory', 200, ['Location' => ['https://example.com']]))->foo;
 	}
 }
