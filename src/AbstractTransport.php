@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2020 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -11,7 +11,7 @@ namespace Joomla\Http;
 /**
  * Abstract transport class.
  *
- * @since  __DEPLOY_VERSION__
+ * @since  2.0.0-beta
  */
 abstract class AbstractTransport implements TransportInterface
 {
@@ -19,7 +19,7 @@ abstract class AbstractTransport implements TransportInterface
 	 * The client options.
 	 *
 	 * @var    array|\ArrayAccess
-	 * @since  __DEPLOY_VERSION__
+	 * @since  2.0.0-beta
 	 */
 	protected $options;
 
@@ -28,7 +28,7 @@ abstract class AbstractTransport implements TransportInterface
 	 *
 	 * @param   array|\ArrayAccess  $options  Client options array.
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 * @throws  \RuntimeException
 	 */
 	public function __construct($options = [])
@@ -56,7 +56,7 @@ abstract class AbstractTransport implements TransportInterface
 	 *
 	 * @return  mixed  The option value.
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	protected function getOption(string $key, $default = null)
 	{
@@ -70,7 +70,7 @@ abstract class AbstractTransport implements TransportInterface
 	 *
 	 * @return  array
 	 *
-	 * @since   __DEPLOY_VERSION__
+	 * @since   2.0.0-beta
 	 */
 	protected function processHeaders(array $headers): array
 	{
