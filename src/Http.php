@@ -243,7 +243,7 @@ class Http implements ClientInterface
 	 *
 	 * @return  ResponseInterface|Response
 	 *
-	 * @since   2.0.0-beta
+	 * @since   2.0.0
 	 */
 	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
