@@ -19,3 +19,9 @@ To install the package, you can simply run the following from the command line:
 ```sh
 composer require joomla/http
 ```
+
+If you want to include the test sources, use
+
+```sh
+composer require --prefer-source joomla/http
+```
