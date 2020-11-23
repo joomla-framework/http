@@ -276,9 +276,7 @@ class Socket extends AbstractTransport
 		}
 
 		// Capture PHP errors
-		$php_errormsg = '';
-		$trackErrors  = ini_get('track_errors');
-		ini_set('track_errors', true);
+		error_clear_last();
 
 		// PHP sends a warning if the uri does not exists; we silence it and throw an exception instead.
 		// Attempt to connect to the server
@@ -286,20 +284,16 @@ class Socket extends AbstractTransport
 
 		if (!$connection)
 		{
-			if (!$php_errormsg)
-			{
+			$error = error_get_last();
+			if ($error === null || $error['message'] === '') {
 				// Error but nothing from php? Create our own
-				$php_errormsg = sprintf('Could not connect to resource: %s', $uri);
+				$error = array(
+					'message' => sprintf('Could not connect to resource %s: %s (%d)', $uri, $err, $errno)
+				);
 			}
 
-			// Restore error tracking to give control to the exception handler
-			ini_set('track_errors', $trackErrors);
-
-			throw new \RuntimeException($php_errormsg);
+			throw new \RuntimeException($error['message']);
 		}
-
-		// Restore error tracking to what it was before.
-		ini_set('track_errors', $trackErrors);
 
 		// Since the connection was successful let's store it in case we need to use it later.
 		$this->connections[$key] = $connection;
