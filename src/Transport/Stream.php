@@ -180,7 +180,9 @@ class Stream extends AbstractTransport
 		if (!$stream)
 		{
 			$error = error_get_last();
-			if ($error === null || $error['message'] === '') {
+
+			if ($error === null || $error['message'] === '')
+			{
 				// Error but nothing from php? Create our own
 				$error = array(
 					'message' => sprintf('Could not connect to resource %s', $uri)
