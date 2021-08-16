@@ -17,11 +17,12 @@ over a variety of transport protocols.
 To install the package, you can simply run the following from the command line:
            
 ```sh
-composer require joomla/http
+composer require joomla/http "~2.0"
+
 ```
 
 If you want to include the test sources, use
 
 ```sh
-composer require --prefer-source joomla/http
+composer require --prefer-source joomla/http "~2.0"
 ```
