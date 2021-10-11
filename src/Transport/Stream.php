@@ -172,29 +172,25 @@ class Stream extends AbstractTransport
 		$context = stream_context_create($streamOptions);
 
 		// Capture PHP errors
-		$php_errormsg = '';
-		$trackErrors  = ini_get('track_errors');
-		ini_set('track_errors', true);
+		error_clear_last();
 
 		// Open the stream for reading.
 		$stream = @fopen((string) $uri, 'r', false, $context);
 
 		if (!$stream)
 		{
-			if (!$php_errormsg)
+			$error = error_get_last();
+
+			if ($error === null || $error['message'] === '')
 			{
 				// Error but nothing from php? Create our own
-				$php_errormsg = sprintf('Could not connect to resource: %s', $uri);
+				$error = array(
+					'message' => sprintf('Could not connect to resource %s', $uri)
+				);
 			}
 
-			// Restore error tracking to give control to the exception handler
-			ini_set('track_errors', $trackErrors);
-
-			throw new \RuntimeException($php_errormsg);
+			throw new \RuntimeException($error['message']);
 		}
-
-		// Restore error tracking to what it was before.
-		ini_set('track_errors', $trackErrors);
 
 		// Get the metadata for the stream, including response headers.
 		$metadata = stream_get_meta_data($stream);
