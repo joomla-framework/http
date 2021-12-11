@@ -2,34 +2,62 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
 namespace Joomla\Http;
 
+use Laminas\Diactoros\Response as PsrResponse;
+
 /**
  * HTTP response data object class.
  *
+ * @property-read  string   $body     The response body as a string
+ * @property-read  integer  $code     The status code of the response
+ * @property-read  array    $headers  The headers as an array
+ *
  * @since  1.0
  */
-class Response
+class Response extends PsrResponse
 {
 	/**
-	 * @var    integer  The server response code.
-	 * @since  1.0
+	 * Magic getter for backward compatibility with the 1.x API
+	 *
+	 * @param   string  $name  The variable to return
+	 *
+	 * @return  mixed
+	 *
+	 * @since   2.0.0
+	 * @deprecated  3.0  Access data via the PSR-7 ResponseInterface instead
 	 */
-	public $code;
+	public function __get($name)
+	{
+		switch (strtolower($name))
+		{
+			case 'body':
+				return (string) $this->getBody();
 
-	/**
-	 * @var    array  Response headers.
-	 * @since  1.0
-	 */
-	public $headers = array();
+			case 'code':
+				return $this->getStatusCode();
 
-	/**
-	 * @var    string  Server response body.
-	 * @since  1.0
-	 */
-	public $body;
+			case 'headers':
+				return $this->getHeaders();
+
+			default:
+				$trace = debug_backtrace();
+
+				trigger_error(
+					sprintf(
+						'Undefined property via __get(): %s in %s on line %s',
+						$name,
+						$trace[0]['file'],
+						$trace[0]['line']
+					),
+					E_USER_NOTICE
+				);
+
+				break;
+		}
+	}
 }

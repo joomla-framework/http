@@ -2,66 +2,27 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
 namespace Joomla\Http\Transport;
 
 use Composer\CaBundle\CaBundle;
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
-use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
+use Laminas\Diactoros\Stream as StreamResponse;
 
 /**
  * HTTP transport class for using PHP streams.
  *
  * @since  1.0
  */
-class Stream implements TransportInterface
+class Stream extends AbstractTransport
 {
-	/**
-	 * The client options.
-	 *
-	 * @var    array|\ArrayAccess
-	 * @since  1.0
-	 */
-	protected $options;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options array.
-	 *
-	 * @since   1.0
-	 * @throws  \RuntimeException
-	 */
-	public function __construct($options = array())
-	{
-		// Verify that fopen() is available.
-		if (!self::isSupported())
-		{
-			throw new \RuntimeException('Cannot use a stream transport when fopen() is not available.');
-		}
-
-		// Verify that URLs can be used with fopen();
-		if (!ini_get('allow_url_fopen'))
-		{
-			throw new \RuntimeException('Cannot use a stream transport when "allow_url_fopen" is disabled.');
-		}
-
-		if (!\is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
-
-		$this->options = $options;
-	}
-
 	/**
 	 * Send a request to the server and return a Response object with the response.
 	 *
@@ -77,10 +38,10 @@ class Stream implements TransportInterface
 	 * @since   1.0
 	 * @throws  \RuntimeException
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null)
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
 	{
 		// Create the stream context options array with the required method offset.
-		$options = array('method' => strtoupper($method));
+		$options = ['method' => strtoupper($method)];
 
 		// If data exists let's encode it and make sure our Content-Type header is set.
 		if (isset($data))
@@ -121,38 +82,46 @@ class Stream implements TransportInterface
 		$options['ignore_errors'] = 1;
 
 		// Follow redirects.
-		$options['follow_location'] = isset($this->options['follow_location']) ? (int) $this->options['follow_location'] : 1;
+		$options['follow_location'] = (int) $this->getOption('follow_location', 1);
 
 		// Configure protocol version, use transport's default if not set otherwise.
-		$options['follow_location'] = isset($this->options['protocolVersion']) ? $this->options['protocolVersion'] : '1.0';
+		$options['follow_location'] = $this->getOption('protocolVersion', '1.0');
 
 		// Add the proxy configuration if enabled
-		$proxyEnabled = isset($this->options['proxy.enabled']) ? (bool) $this->options['proxy.enabled'] : false;
-
-		if ($proxyEnabled)
+		if ($this->getOption('proxy.enabled', false))
 		{
 			$options['request_fulluri'] = true;
 
-			if (isset($this->options['proxy.host'], $this->options['proxy.port']))
+			if ($this->getOption('proxy.host') && $this->getOption('proxy.port'))
 			{
-				$options['proxy'] = $this->options['proxy.host'] . ':' . (int) $this->options['proxy.port'];
+				$options['proxy'] = $this->getOption('proxy.host') . ':' . (int) $this->getOption('proxy.port');
 			}
 
 			// If authentication details are provided, add those as well
-			if (isset($this->options['proxy.user'], $this->options['proxy.password']))
+			if ($this->getOption('proxy.user') && $this->getOption('proxy.password'))
 			{
-				$headers['Proxy-Authorization'] = 'Basic ' . base64_encode($this->options['proxy.user'] . ':' . $this->options['proxy.password']);
+				$headers['Proxy-Authorization'] = 'Basic ' . base64_encode($this->getOption('proxy.user') . ':' . $this->getOption('proxy.password'));
 			}
 		}
 
 		// Build the headers string for the request.
-		$headerString = null;
-
-		if (isset($headers))
+		if (!empty($headers))
 		{
+			$headerString = '';
+
 			foreach ($headers as $key => $value)
 			{
-				$headerString .= $key . ': ' . $value . "\r\n";
+				if (\is_array($value))
+				{
+					foreach ($value as $header)
+					{
+						$headerString .= "$key: $header\r\n";
+					}
+				}
+				else
+				{
+					$headerString .= "$key: $value\r\n";
+				}
 			}
 
 			// Add the headers string into the stream context options array.
@@ -160,19 +129,16 @@ class Stream implements TransportInterface
 		}
 
 		// Authentication, if needed
-		if ($uri instanceof Uri && isset($this->options['userauth'], $this->options['passwordauth']))
+		if ($uri instanceof Uri && $this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$uri->setUser($this->options['userauth']);
-			$uri->setPass($this->options['passwordauth']);
+			$uri->setUser($this->getOption('userauth'));
+			$uri->setPass($this->getOption('passwordauth'));
 		}
 
 		// Set any custom transport options
-		if (isset($this->options['transport.stream']))
+		foreach ($this->getOption('transport.stream', []) as $key => $value)
 		{
-			foreach ($this->options['transport.stream'] as $key => $value)
-			{
-				$options[$key] = $value;
-			}
+			$options[$key] = $value;
 		}
 
 		// Get the current context options.
@@ -182,22 +148,17 @@ class Stream implements TransportInterface
 		$contextOptions['http'] = isset($contextOptions['http']) ? array_merge($contextOptions['http'], $options) : $options;
 
 		// Create the stream context for the request.
-		$streamOptions = array(
+		$streamOptions = [
 			'http' => $options,
-			'ssl'  => array(
-				'verify_peer'  => true,
-				'verify_depth' => 5,
-			),
-		);
-
-		// Ensure the ssl peer name is verified where possible
-		if (version_compare(\PHP_VERSION, '5.6.0') >= 0)
-		{
-			$streamOptions['ssl']['verify_peer_name'] = true;
-		}
+			'ssl'  => [
+				'verify_peer'      => true,
+				'verify_depth'     => 5,
+				'verify_peer_name' => true,
+			],
+		];
 
 		// The cacert may be a file or path
-		$certpath = isset($this->options['stream.certpath']) ? $this->options['stream.certpath'] : CaBundle::getSystemCaRootBundlePath();
+		$certpath = $this->getOption('stream.certpath', CaBundle::getSystemCaRootBundlePath());
 
 		if (is_dir($certpath))
 		{
@@ -211,22 +172,7 @@ class Stream implements TransportInterface
 		$context = stream_context_create($streamOptions);
 
 		// Capture PHP errors
-		if (PHP_VERSION_ID < 70000)
-		{
-			// @Todo Remove this path, when PHP5 support is dropped.
-			set_error_handler(
-				function () {
-					return false;
-				}
-			);
-			@trigger_error('');
-			restore_error_handler();
-		}
-		else
-		{
-			/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
-			error_clear_last();
-		}
+		error_clear_last();
 
 		// Open the stream for reading.
 		$stream = @fopen((string) $uri, 'r', false, $context);
@@ -255,6 +201,8 @@ class Stream implements TransportInterface
 		// Close the stream.
 		fclose($stream);
 
+		$headers = [];
+
 		if (isset($metadata['wrapper_data']['headers']))
 		{
 			$headers = $metadata['wrapper_data']['headers'];
@@ -262,10 +210,6 @@ class Stream implements TransportInterface
 		elseif (isset($metadata['wrapper_data']))
 		{
 			$headers = $metadata['wrapper_data'];
-		}
-		else
-		{
-			$headers = array();
 		}
 
 		return $this->getResponse($headers, $content);
@@ -284,34 +228,23 @@ class Stream implements TransportInterface
 	 */
 	protected function getResponse(array $headers, $body)
 	{
-		// Create the response object.
-		$return = new Response;
-
-		// Set the body for the response.
-		$return->body = $body;
-
 		// Get the response code from the first offset of the response headers.
 		preg_match('/[0-9]{3}/', array_shift($headers), $matches);
 		$code = $matches[0];
 
-		if (is_numeric($code))
+		if (!is_numeric($code))
 		{
-			$return->code = (int) $code;
-		}
-		// No valid response code was detected.
-		else
-		{
+			// No valid response code was detected.
 			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
-		// Add the response headers to the response object.
-		foreach ($headers as $header)
-		{
-			$pos                                             = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
-		}
+		$statusCode      = (int) $code;
+		$verifiedHeaders = $this->processHeaders($headers);
 
-		return $return;
+		$streamInterface = new StreamResponse('php://memory', 'rw');
+		$streamInterface->write($body);
+
+		return new Response($streamInterface, $statusCode, $verifiedHeaders);
 	}
 
 	/**

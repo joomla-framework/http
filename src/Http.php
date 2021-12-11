@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -10,13 +10,16 @@ namespace Joomla\Http;
 
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * HTTP client class.
  *
  * @since  1.0
  */
-class Http
+class Http implements ClientInterface
 {
 	/**
 	 * Options for the HTTP client.
@@ -44,7 +47,7 @@ class Http
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	public function __construct($options = array(), TransportInterface $transport = null)
+	public function __construct($options = [], TransportInterface $transport = null)
 	{
 		if (!\is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -55,15 +58,15 @@ class Http
 
 		$this->options = $options;
 
-		if (!isset($transport))
+		if (!$transport)
 		{
-			$transport = HttpFactory::getAvailableDriver($this->options);
-		}
+			$transport = (new HttpFactory)->getAvailableDriver($this->options);
 
-		// Ensure the transport is a TransportInterface instance or bail out
-		if (!($transport instanceof TransportInterface))
-		{
-			throw new \InvalidArgumentException('A valid TransportInterface object was not set.');
+			// Ensure the transport is a TransportInterface instance or bail out
+			if (!($transport instanceof TransportInterface))
+			{
+				throw new \InvalidArgumentException(sprintf('A valid %s object was not set.', TransportInterface::class));
+			}
 		}
 
 		$this->transport = $transport;
@@ -72,15 +75,16 @@ class Http
 	/**
 	 * Get an option from the HTTP client.
 	 *
-	 * @param   string  $key  The name of the option to get.
+	 * @param   string  $key      The name of the option to get.
+	 * @param   mixed   $default  The default value if the option is not set.
 	 *
 	 * @return  mixed  The option value.
 	 *
 	 * @since   1.0
 	 */
-	public function getOption($key)
+	public function getOption($key, $default = null)
 	{
-		return isset($this->options[$key]) ? $this->options[$key] : null;
+		return $this->options[$key] ?? $default;
 	}
 
 	/**
@@ -89,7 +93,7 @@ class Http
 	 * @param   string  $key    The name of the option to set.
 	 * @param   mixed   $value  The option value to set.
 	 *
-	 * @return  Http  This object for method chaining.
+	 * @return  $this
 	 *
 	 * @since   1.0
 	 */
@@ -111,7 +115,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function options($url, array $headers = array(), $timeout = null)
+	public function options($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('OPTIONS', $url, null, $headers, $timeout);
 	}
@@ -127,7 +131,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function head($url, array $headers = array(), $timeout = null)
+	public function head($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('HEAD', $url, null, $headers, $timeout);
 	}
@@ -143,7 +147,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function get($url, array $headers = array(), $timeout = null)
+	public function get($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('GET', $url, null, $headers, $timeout);
 	}
@@ -160,7 +164,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function post($url, $data, array $headers = array(), $timeout = null)
+	public function post($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('POST', $url, $data, $headers, $timeout);
 	}
@@ -177,7 +181,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function put($url, $data, array $headers = array(), $timeout = null)
+	public function put($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('PUT', $url, $data, $headers, $timeout);
 	}
@@ -194,7 +198,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function delete($url, array $headers = array(), $timeout = null, $data = null)
+	public function delete($url, array $headers = [], $timeout = null, $data = null)
 	{
 		return $this->makeTransportRequest('DELETE', $url, $data, $headers, $timeout);
 	}
@@ -210,7 +214,7 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function trace($url, array $headers = array(), $timeout = null)
+	public function trace($url, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('TRACE', $url, null, $headers, $timeout);
 	}
@@ -227,9 +231,30 @@ class Http
 	 *
 	 * @since   1.0
 	 */
-	public function patch($url, $data, array $headers = array(), $timeout = null)
+	public function patch($url, $data, array $headers = [], $timeout = null)
 	{
 		return $this->makeTransportRequest('PATCH', $url, $data, $headers, $timeout);
+	}
+
+	/**
+	 * Sends a PSR-7 request and returns a PSR-7 response.
+	 *
+	 * @param   RequestInterface  $request  The PSR-7 request object.
+	 *
+	 * @return  ResponseInterface|Response
+	 *
+	 * @since   2.0.0
+	 */
+	public function sendRequest(RequestInterface $request): ResponseInterface
+	{
+		$data = $request->getBody()->getContents();
+
+		return $this->makeTransportRequest(
+			$request->getMethod(),
+			new Uri((string) $request->getUri()),
+			empty($data) ? null : $data,
+			$request->getHeaders()
+		);
 	}
 
 	/**
@@ -246,7 +271,7 @@ class Http
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	protected function makeTransportRequest($method, $url, $data = null, array $headers = array(), $timeout = null)
+	protected function makeTransportRequest($method, $url, $data = null, array $headers = [], $timeout = null)
 	{
 		// Look for headers set in the options.
 		if (isset($this->options['headers']))
@@ -277,7 +302,13 @@ class Http
 		}
 		elseif (!($url instanceof UriInterface))
 		{
-			throw new \InvalidArgumentException(sprintf('A string or UriInterface object must be provided, a "%s" was provided.', \gettype($url)));
+			throw new \InvalidArgumentException(
+				sprintf(
+					'A string or %s object must be provided, a "%s" was provided.',
+					UriInterface::class,
+					\gettype($url)
+				)
+			);
 		}
 
 		return $this->transport->request($method, $url, $data, $headers, $timeout, $userAgent);

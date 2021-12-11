@@ -1,38 +1,42 @@
 <?php
 /**
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\Http;
+use Joomla\Http\Response;
+use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
-use Joomla\Test\TestHelper;
+use Laminas\Diactoros\Request;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test class for Joomla\Http\Http.
- *
- * @since  1.0
  */
 class HttpTest extends TestCase
 {
 	/**
-	 * @var    array  Options for the Http object.
-	 * @since  1.0
+	 * Options for the Http object.
+	 *
+	 * @var  array
 	 */
-	protected $options;
+	protected $options = [];
 
 	/**
-	 * @var    Transport  Mock transport object.
-	 * @since  1.0
+	 * Mock transport object.
+	 *
+	 * @var  TransportInterface|MockObject
 	 */
 	protected $transport;
 
 	/**
-	 * @var    Http  Object under test.
-	 * @since  1.0
+	 * Object under test.
+	 *
+	 * @var  Http
 	 */
 	protected $object;
 
@@ -41,282 +45,338 @@ class HttpTest extends TestCase
 	 * This method is called before a test is executed.
 	 *
 	 * @return  void
-	 *
-	 * @since   1.0
 	 */
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
-		static $classNumber = 1;
-		$this->options = array();
-
-		$this->transport = $this->getMockBuilder('Joomla\Http\TransportInterface')
-			->setConstructorArgs(array($this->options))
-			->getMock();
+		$this->transport = $this->createMock(TransportInterface::class);
 
 		$this->object = new Http($this->options, $this->transport);
 	}
 
 	/**
-	 * Tests the constructor to ensure only arrays or ArrayAccess objects are allowed
+	 * @testdox  The constructor disallows invalid data objects
 	 *
-	 * @return  void
-	 *
-	 * @expectedException  \InvalidArgumentException
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testConstructorDisallowsNonArrayObjects()
 	{
+		$this->expectException(\InvalidArgumentException::class);
+
 		new Http(new \stdClass);
 	}
 
 	/**
-	 * Tests the getOption method
+	 * @testdox  The driver's options can be managed
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
-	public function testGetOption()
+	public function testOptionManagement()
 	{
 		$this->object->setOption('testKey', 'testValue');
 
-		$value = TestHelper::getValue($this->object, 'options');
-
-		$this->assertThat(
-			$value['testKey'],
-			$this->equalTo('testValue')
+		$this->assertSame(
+			'testValue',
+			$this->object->getOption('testKey')
 		);
 	}
 
 	/**
-	 * Tests the setOption method
+	 * @testdox  A OPTIONS request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 */
-	public function testSetOption()
-	{
-		TestHelper::setValue(
-			$this->object, 'options', array(
-				'testKey' => 'testValue'
-			)
-		);
-
-		$this->assertThat(
-			$this->object->getOption('testKey'),
-			$this->equalTo('testValue')
-		);
-	}
-
-	/**
-	 * Tests the options method
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testOptions()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('OPTIONS', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with('OPTIONS', new Uri('http://example.com'), null, ['test' => 'testHeader'])
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->options('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->options('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the head method
+	 * @testdox  A HEAD request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testHead()
 	{
 		// Set header option
-		$this->object->setOption('headers', array('option' => 'optionHeader'));
+		$this->object->setOption('headers', ['option' => 'optionHeader']);
+
+		$response = new Response;
 
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('HEAD', new Uri('http://example.com'), null, array('test' => 'testHeader', 'option' => 'optionHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'HEAD',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test'   => 'testHeader',
+					'option' => 'optionHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->head('http://example.com', array('test' => 'testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->head('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the get method
+	 * @testdox  A GET request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGet()
 	{
 		// Set timeout option
 		$this->object->setOption('timeout', 100);
 
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('GET', new Uri('http://example.com'), null, array('testHeader'), 100)
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				],
+				100
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->get('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->get('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the get method with an injected Uri object
+	 * @testdox  A GET request can be sent when passing a URI object
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGetWithUri()
 	{
 		// Set timeout option
 		$this->object->setOption('timeout', 100);
 
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('GET', new Uri('http://example.com'), null, array('testHeader'), 100)
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				],
+				100
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->get(new Uri('http://example.com'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->get(new Uri('http://example.com'), ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the get method with an invalid object for the URL
+	 * @testdox  Sending a GET request fails with an invalid data type for the URI
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
-	 *
-	 * @expectedException  \InvalidArgumentException
-	 * @expectedExceptionMessage  A string or UriInterface object must be provided, a "array" was provided.
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testGetWithInvalidUrl()
 	{
-		// Set timeout option
-		$this->object->setOption('timeout', 100);
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('A string or Joomla\Uri\UriInterface object must be provided, a "array" was provided.');
 
-		$this->assertThat(
-			$this->object->get(array(), array('testHeader')),
-			$this->equalTo('ReturnString')
-		);
+		$this->object->get([]);
 	}
 
 	/**
-	 * Tests the post method
+	 * @testdox  A POST request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPost()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('POST', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'POST',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->post('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->post('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the put method
+	 * @testdox  A PUT request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPut()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('PUT', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'PUT',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->put('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->put('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the delete method
+	 * @testdox  A DELETE request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testDelete()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('DELETE', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'DELETE',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->delete('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->delete('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the trace method
+	 * @testdox  A TRACE request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testTrace()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('TRACE', new Uri('http://example.com'), null, array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'TRACE',
+				new Uri('http://example.com'),
+				null,
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->trace('http://example.com', array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->trace('http://example.com', ['test' => 'testHeader'])
 		);
 	}
 
 	/**
-	 * Tests the patch method
+	 * @testdox  A PATCH request can be sent
 	 *
-	 * @return  void
-	 *
-	 * @since   1.0
+	 * @covers   Joomla\Http\Http
 	 */
 	public function testPatch()
 	{
+		$response = new Response;
+
 		$this->transport->expects($this->once())
 			->method('request')
-			->with('PATCH', new Uri('http://example.com'), array('key' => 'value'), array('testHeader'))
-			->will($this->returnValue('ReturnString'));
+			->with(
+				'PATCH',
+				new Uri('http://example.com'),
+				[
+					'key' => 'value',
+				],
+				[
+					'test' => 'testHeader',
+				]
+			)
+			->willReturn($response);
 
-		$this->assertThat(
-			$this->object->patch('http://example.com', array('key' => 'value'), array('testHeader')),
-			$this->equalTo('ReturnString')
+		$this->assertSame(
+			$response,
+			$this->object->patch('http://example.com', ['key' => 'value'], ['test' => 'testHeader'])
+		);
+	}
+
+	/**
+	 * @testdox  A request can be sent using a PSR-18 RequestInterface
+	 *
+	 * @covers   Joomla\Http\Http
+	 */
+	public function testSendRequest()
+	{
+		$response = new Response;
+
+		$this->transport->expects($this->once())
+			->method('request')
+			->with(
+				'GET',
+				new Uri('http://example.com'),
+				'',
+				[
+					'Host'       => ['example.com'],
+					'testHeader' => [''],
+				]
+			)
+			->willReturn($response);
+
+		$request = new Request('http://example.com', 'GET');
+		$request = $request->withHeader('testHeader', '');
+
+		$this->assertSame(
+			$response,
+			$this->object->sendRequest($request)
 		);
 	}
 }

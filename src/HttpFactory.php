@@ -2,7 +2,7 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
@@ -27,7 +27,7 @@ class HttpFactory
 	 * @throws  \InvalidArgumentException
 	 * @throws  \RuntimeException
 	 */
-	public static function getHttp($options = array(), $adapters = null)
+	public function getHttp($options = [], $adapters = null)
 	{
 		if (!\is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -36,7 +36,7 @@ class HttpFactory
 			);
 		}
 
-		if (!$driver = self::getAvailableDriver($options, $adapters))
+		if (!$driver = $this->getAvailableDriver($options, $adapters))
 		{
 			throw new \RuntimeException('No transport driver available.');
 		}
@@ -55,7 +55,7 @@ class HttpFactory
 	 * @since   1.0
 	 * @throws  \InvalidArgumentException
 	 */
-	public static function getAvailableDriver($options = array(), $default = null)
+	public function getAvailableDriver($options = [], $default = null)
 	{
 		if (!\is_array($options) && !($options instanceof \ArrayAccess))
 		{
@@ -66,7 +66,7 @@ class HttpFactory
 
 		if ($default === null)
 		{
-			$availableAdapters = self::getHttpTransports();
+			$availableAdapters = $this->getHttpTransports();
 		}
 		else
 		{
@@ -82,8 +82,7 @@ class HttpFactory
 
 		foreach ($availableAdapters as $adapter)
 		{
-			/** @var  $class  TransportInterface */
-			$class = 'Joomla\\Http\\Transport\\' . ucfirst($adapter);
+			$class = __NAMESPACE__ . '\\Transport\\' . ucfirst($adapter);
 
 			if (class_exists($class))
 			{
@@ -100,16 +99,16 @@ class HttpFactory
 	/**
 	 * Get the HTTP transport handlers
 	 *
-	 * @return  array  An array of available transport handlers
+	 * @return  string[]  An array of available transport handler types
 	 *
 	 * @since   1.0
 	 */
-	public static function getHttpTransports()
+	public function getHttpTransports()
 	{
-		$names    = array();
+		$names    = [];
 		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
-		/** @var  $file  \DirectoryIterator */
+		/** @var \DirectoryIterator $file */
 		foreach ($iterator as $file)
 		{
 			$fileName = $file->getFilename();

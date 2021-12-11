@@ -2,60 +2,26 @@
 /**
  * Part of the Joomla Framework Http Package
  *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
+ * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
  */
 
 namespace Joomla\Http\Transport;
 
 use Composer\CaBundle\CaBundle;
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
-use Joomla\Http\TransportInterface;
 use Joomla\Uri\UriInterface;
+use Laminas\Diactoros\Stream as StreamResponse;
 
 /**
  * HTTP transport class for using cURL.
  *
  * @since  1.0
  */
-class Curl implements TransportInterface
+class Curl extends AbstractTransport
 {
-	/**
-	 * The client options.
-	 *
-	 * @var    array|\ArrayAccess
-	 * @since  1.0
-	 */
-	protected $options;
-
-	/**
-	 * Constructor. CURLOPT_FOLLOWLOCATION must be disabled when open_basedir or safe_mode are enabled.
-	 *
-	 * @param   array|\ArrayAccess  $options  Client options array.
-	 *
-	 * @link    https://www.php.net/manual/en/function.curl-setopt.php
-	 * @since   1.0
-	 * @throws  \InvalidArgumentException
-	 * @throws  \RuntimeException
-	 */
-	public function __construct($options = array())
-	{
-		if (!\function_exists('curl_init') || !\is_callable('curl_init'))
-		{
-			throw new \RuntimeException('Cannot use a cURL transport when curl_init() is not available.');
-		}
-
-		if (!\is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
-
-		$this->options = $options;
-	}
-
 	/**
 	 * Send a request to the server and return a Response object with the response.
 	 *
@@ -71,7 +37,7 @@ class Curl implements TransportInterface
 	 * @since   1.0
 	 * @throws  \RuntimeException
 	 */
-	public function request($method, UriInterface $uri, $data = null, array $headers = null, $timeout = null, $userAgent = null)
+	public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
 	{
 		// Setup the cURL handle.
 		$ch = curl_init();
@@ -79,7 +45,7 @@ class Curl implements TransportInterface
 		// Initialize the certificate store
 		$this->setCAOptionAndValue($ch);
 
-		$options = array();
+		$options = [];
 
 		// Set the request method.
 		switch (strtoupper($method))
@@ -102,6 +68,9 @@ class Curl implements TransportInterface
 
 		// Don't wait for body when $method is HEAD
 		$options[\CURLOPT_NOBODY] = ($method === 'HEAD');
+
+		// Initialize the certificate store
+		$options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', CaBundle::getSystemCaRootBundlePath());
 
 		// If data exists let's encode it and make sure our Content-type header is set.
 		if (isset($data))
@@ -130,13 +99,23 @@ class Curl implements TransportInterface
 		}
 
 		// Build the headers string for the request.
-		$headerArray = array();
+		$headerArray = [];
 
-		if (isset($headers))
+		if (!empty($headers))
 		{
 			foreach ($headers as $key => $value)
 			{
-				$headerArray[] = $key . ': ' . $value;
+				if (\is_array($value))
+				{
+					foreach ($value as $header)
+					{
+						$headerArray[] = "$key: $header";
+					}
+				}
+				else
+				{
+					$headerArray[] = "$key: $value";
+				}
 			}
 
 			// Add the headers string into the stream context options array.
@@ -178,29 +157,26 @@ class Curl implements TransportInterface
 		// Follow redirects if server config allows
 		if ($this->redirectsAllowed())
 		{
-			$options[\CURLOPT_FOLLOWLOCATION] = (bool) isset($this->options['follow_location']) ? $this->options['follow_location'] : true;
+			$options[\CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
 		}
 
 		// Authentication, if needed
-		if (isset($this->options['userauth'], $this->options['passwordauth']))
+		if ($this->getOption('userauth') && $this->getOption('passwordauth'))
 		{
-			$options[\CURLOPT_USERPWD]  = $this->options['userauth'] . ':' . $this->options['passwordauth'];
-			$options[\CURLOPT_HTTPAUTH] = \CURLAUTH_BASIC;
+			$options[\CURLOPT_USERPWD]  = $this->getOption('userauth') . ':' . $this->getOption('passwordauth');
+			$options[\CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 		}
 
 		// Configure protocol version
-		if (isset($this->options['protocolVersion']))
+		if ($protocolVersion = $this->getOption('protocolVersion'))
 		{
-			$options[\CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($this->options['protocolVersion']);
+			$options[\CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($protocolVersion);
 		}
 
 		// Set any custom transport options
-		if (isset($this->options['transport.curl']))
+		foreach ($this->getOption('transport.curl', []) as $key => $value)
 		{
-			foreach ($this->options['transport.curl'] as $key => $value)
-			{
-				$options[$key] = $value;
-			}
+			$options[$key] = $value;
 		}
 
 		// Set the cURL options.
@@ -243,10 +219,10 @@ class Curl implements TransportInterface
 	 */
 	protected function setCAOptionAndValue($ch)
 	{
-		if (isset($this->options['curl.certpath']))
+		if ($certpath = $this->getOption('curl.certpath'))
 		{
 			// Option is passed to a .PEM file.
-			curl_setopt($ch, \CURLOPT_CAINFO, $this->options['curl.certpath']);
+			curl_setopt($ch, \CURLOPT_CAINFO, $certpath);
 
 			return;
 		}
@@ -277,9 +253,6 @@ class Curl implements TransportInterface
 	 */
 	protected function getResponse($content, $info)
 	{
-		// Create the response object.
-		$return = new Response;
-
 		// Try to get header size
 		if (isset($info['header_size']))
 		{
@@ -290,13 +263,13 @@ class Curl implements TransportInterface
 			$headers = explode("\r\n", array_pop($headerArray));
 
 			// Set the body for the response.
-			$return->body = substr($content, $info['header_size']);
+			$body = substr($content, $info['header_size']);
 		}
 		// Fallback and try to guess header count by redirect count
 		else
 		{
 			// Get the number of redirects that occurred.
-			$redirects = isset($info['redirect_count']) ? $info['redirect_count'] : 0;
+			$redirects = $info['redirect_count'] ?? 0;
 
 			/*
 			 * Split the response into headers and body. If cURL encountered redirects, the headers for the redirected requests will
@@ -306,7 +279,7 @@ class Curl implements TransportInterface
 			$response = explode("\r\n\r\n", $content, 2 + $redirects);
 
 			// Set the body for the response.
-			$return->body = array_pop($response);
+			$body = array_pop($response);
 
 			// Get the last set of response headers as an array.
 			$headers = explode("\r\n", array_pop($response));
@@ -317,25 +290,19 @@ class Curl implements TransportInterface
 
 		$code = \count($matches) ? $matches[0] : null;
 
-		if (is_numeric($code))
+		if (!is_numeric($code))
 		{
-			$return->code = (int) $code;
-		}
-
-		// No valid response code was detected.
-		else
-		{
+			// No valid response code was detected.
 			throw new InvalidResponseCodeException('No HTTP response code found.');
 		}
 
-		// Add the response headers to the response object.
-		foreach ($headers as $header)
-		{
-			$pos                                             = strpos($header, ':');
-			$return->headers[trim(substr($header, 0, $pos))] = trim(substr($header, ($pos + 1)));
-		}
+		$statusCode      = (int) $code;
+		$verifiedHeaders = $this->processHeaders($headers);
 
-		return $return;
+		$streamInterface = new StreamResponse('php://memory', 'rw');
+		$streamInterface->write($body);
+
+		return new Response($streamInterface, $statusCode, $verifiedHeaders);
 	}
 
 	/**
@@ -359,7 +326,7 @@ class Curl implements TransportInterface
 	 *
 	 * @since   1.3.1
 	 */
-	private function mapProtocolVersion($version)
+	private function mapProtocolVersion(string $version): int
 	{
 		switch ($version)
 		{
@@ -387,24 +354,8 @@ class Curl implements TransportInterface
 	 *
 	 * @since   1.2.1
 	 */
-	private function redirectsAllowed()
+	private function redirectsAllowed(): bool
 	{
-		// There are no issues on PHP 5.6 and later
-		if (version_compare(\PHP_VERSION, '5.6', '>='))
-		{
-			return true;
-		}
-
-		// For PHP 5.3, redirects are not allowed if safe_mode and open_basedir are enabled
-		if (\PHP_MAJOR_VERSION === 5 && \PHP_MINOR_VERSION === 3)
-		{
-			if (!ini_get('safe_mode') && !ini_get('open_basedir'))
-			{
-				return true;
-			}
-		}
-
-		// For PHP 5.4 and 5.5, we only need to check if open_basedir is disabled
-		return !ini_get('open_basedir');
+		return true;
 	}
 }
