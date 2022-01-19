@@ -128,7 +128,7 @@ class Curl extends AbstractTransport
 			$options[\CURLOPT_ENCODING] = $headers['Accept-Encoding'];
 		}
 
-		// If an explicit timeout is given user it.
+		// If an explicit timeout is given use it.
 		if (isset($timeout))
 		{
 			$options[\CURLOPT_TIMEOUT]        = (int) $timeout;
