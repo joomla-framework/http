@@ -108,7 +108,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.2",
          "name": "PHPUnit"
@@ -144,7 +145,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.2",
          "name": "PHPUnit"
@@ -180,7 +182,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.3",
          "name": "PHPUnit"
@@ -216,7 +219,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.4",
          "name": "PHPUnit"
@@ -252,7 +256,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php8.0",
          "name": "PHPUnit"
@@ -288,7 +293,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php8.1",
          "name": "PHPUnit"
@@ -324,7 +330,8 @@
       },
       {
          "commands": [
-            "php -S 127.0.0.1:8080 & vendor/bin/phpunit"
+            "php -S localhost:8080 -t Tests/stubs",
+            "vendor/bin/phpunit"
          ],
          "failure": "ignore",
          "image": "joomlaprojects/docker-images:php8.2",
@@ -342,6 +349,6 @@
 }
 ---
 kind: signature
-hmac: d57325fa6726c7f1b26d7c51a160c15d3008b83efaef294d5b0b02fa4d09aeb1
+hmac: bce3e62695c751d0dd922a71bfe8da9b26dd613a3da37d0e64ec4d30f75cd9df
 
 ...
