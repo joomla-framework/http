@@ -108,7 +108,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.2",
@@ -145,7 +145,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.2",
@@ -182,7 +182,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.3",
@@ -219,7 +219,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php7.4",
@@ -256,7 +256,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php8.0",
@@ -293,7 +293,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "image": "joomlaprojects/docker-images:php8.1",
@@ -330,7 +330,7 @@
       },
       {
          "commands": [
-            "php -S localhost:8080 -t Tests/stubs",
+            "php -S localhost:8080 -t Tests/stubs &",
             "vendor/bin/phpunit"
          ],
          "failure": "ignore",
@@ -349,6 +349,6 @@
 }
 ---
 kind: signature
-hmac: bce3e62695c751d0dd922a71bfe8da9b26dd613a3da37d0e64ec4d30f75cd9df
+hmac: b92b6c78b0d5519f12fe1a478291ebac147143d1d84bbc1f01730ee911c248bb
 
 ...

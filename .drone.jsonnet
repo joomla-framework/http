@@ -27,7 +27,7 @@ local phpunit(phpversion) = {
     image: "joomlaprojects/docker-images:php" + phpversion,
     [if phpversion == "8.2" then "failure"]: "ignore",
     commands: [
-        "php -S localhost:8080 -t Tests/stubs",
+        "php -S localhost:8080 -t Tests/stubs &",
         "vendor/bin/phpunit"
     ],
 };
