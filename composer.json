@@ -14,9 +14,9 @@
         "laminas/laminas-diactoros": "^2.2.2"
     },
     "require-dev": {
-        "joomla/coding-standards": "^3.0@dev",
         "joomla/test": "^2.0",
-        "phpunit/phpunit": "^8.5|^9.0"
+        "phpunit/phpunit": "^8.5|^9.0",
+        "squizlabs/php_codesniffer": "~3.7.1"
     },
     "suggest": {
         "ext-curl": "To use cURL for HTTP connections"
