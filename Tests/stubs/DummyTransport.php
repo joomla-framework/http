@@ -15,15 +15,15 @@ namespace Joomla\Http\Transport;
  */
 class DummyTransport
 {
-	/**
-	 * Method to check if HTTP transport DummyTransport is available for use
-	 *
-	 * @return  boolean  True if available, else false
-	 *
-	 * @since   1.1.4
-	 */
-	public static function isSupported()
-	{
-		return false;
-	}
+    /**
+     * Method to check if HTTP transport DummyTransport is available for use
+     *
+     * @return  boolean  True if available, else false
+     *
+     * @since   1.1.4
+     */
+    public static function isSupported()
+    {
+        return false;
+    }
 }

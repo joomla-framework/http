@@ -18,40 +18,40 @@ use Psr\Http\Client\ClientExceptionInterface;
  */
 class UnexpectedResponseException extends \DomainException implements ClientExceptionInterface
 {
-	/**
-	 * The Response object.
-	 *
-	 * @var    Response
-	 * @since  1.2.0
-	 */
-	private $response;
+    /**
+     * The Response object.
+     *
+     * @var    Response
+     * @since  1.2.0
+     */
+    private $response;
 
-	/**
-	 * Constructor
-	 *
-	 * @param   Response    $response  The Response object.
-	 * @param   string      $message   The Exception message to throw.
-	 * @param   integer     $code      The Exception code.
-	 * @param   \Exception  $previous  The previous exception used for the exception chaining.
-	 *
-	 * @since   1.2.0
-	 */
-	public function __construct(Response $response, $message = '', $code = 0, \Exception $previous = null)
-	{
-		parent::__construct($message, $code, $previous);
+    /**
+     * Constructor
+     *
+     * @param   Response    $response  The Response object.
+     * @param   string      $message   The Exception message to throw.
+     * @param   integer     $code      The Exception code.
+     * @param   \Exception  $previous  The previous exception used for the exception chaining.
+     *
+     * @since   1.2.0
+     */
+    public function __construct(Response $response, $message = '', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
 
-		$this->response = $response;
-	}
+        $this->response = $response;
+    }
 
-	/**
-	 * Get the Response object.
-	 *
-	 * @return  Response
-	 *
-	 * @since   1.2.0
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * Get the Response object.
+     *
+     * @return  Response
+     *
+     * @since   1.2.0
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

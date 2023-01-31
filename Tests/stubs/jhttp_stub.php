@@ -13,7 +13,7 @@
  * by the system that the test is running.
  */
 
-$response = new stdClass;
+$response = new stdClass();
 
 $response->method               = getVar($_SERVER, 'REQUEST_METHOD');
 $response->http_user_agent      = getVar($_SERVER, 'HTTP_USER_AGENT');
@@ -46,5 +46,5 @@ echo json_encode($response);
  */
 function getVar($array, $key, $default = '')
 {
-	return $array[$key] ?? $default;
+    return $array[$key] ?? $default;
 }

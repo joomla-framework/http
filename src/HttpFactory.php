@@ -15,123 +15,110 @@ namespace Joomla\Http;
  */
 class HttpFactory
 {
-	/**
-	 * Method to create an Http instance.
-	 *
-	 * @param   array|\ArrayAccess  $options   Client options array.
-	 * @param   array|string        $adapters  Adapter (string) or queue of adapters (array) to use for communication.
-	 *
-	 * @return  Http
-	 *
-	 * @since   1.0
-	 * @throws  \InvalidArgumentException
-	 * @throws  \RuntimeException
-	 */
-	public function getHttp($options = [], $adapters = null)
-	{
-		if (!\is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
+    /**
+     * Method to create an Http instance.
+     *
+     * @param   array|\ArrayAccess  $options   Client options array.
+     * @param   array|string        $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+     *
+     * @return  Http
+     *
+     * @since   1.0
+     * @throws  \InvalidArgumentException
+     * @throws  \RuntimeException
+     */
+    public function getHttp($options = [], $adapters = null)
+    {
+        if (!\is_array($options) && !($options instanceof \ArrayAccess)) {
+            throw new \InvalidArgumentException(
+                'The options param must be an array or implement the ArrayAccess interface.'
+            );
+        }
 
-		if (!$driver = $this->getAvailableDriver($options, $adapters))
-		{
-			throw new \RuntimeException('No transport driver available.');
-		}
+        if (!$driver = $this->getAvailableDriver($options, $adapters)) {
+            throw new \RuntimeException('No transport driver available.');
+        }
 
-		return new Http($options, $driver);
-	}
+        return new Http($options, $driver);
+    }
 
-	/**
-	 * Finds an available TransportInterface object for communication
-	 *
-	 * @param   array|\ArrayAccess  $options  Options for creating TransportInterface object
-	 * @param   array|string        $default  Adapter (string) or queue of adapters (array) to use
-	 *
-	 * @return  TransportInterface|boolean  Interface sub-class or boolean false if no adapters are available
-	 *
-	 * @since   1.0
-	 * @throws  \InvalidArgumentException
-	 */
-	public function getAvailableDriver($options = [], $default = null)
-	{
-		if (!\is_array($options) && !($options instanceof \ArrayAccess))
-		{
-			throw new \InvalidArgumentException(
-				'The options param must be an array or implement the ArrayAccess interface.'
-			);
-		}
+    /**
+     * Finds an available TransportInterface object for communication
+     *
+     * @param   array|\ArrayAccess  $options  Options for creating TransportInterface object
+     * @param   array|string        $default  Adapter (string) or queue of adapters (array) to use
+     *
+     * @return  TransportInterface|boolean  Interface sub-class or boolean false if no adapters are available
+     *
+     * @since   1.0
+     * @throws  \InvalidArgumentException
+     */
+    public function getAvailableDriver($options = [], $default = null)
+    {
+        if (!\is_array($options) && !($options instanceof \ArrayAccess)) {
+            throw new \InvalidArgumentException(
+                'The options param must be an array or implement the ArrayAccess interface.'
+            );
+        }
 
-		if ($default === null)
-		{
-			$availableAdapters = $this->getHttpTransports();
-		}
-		else
-		{
-			settype($default, 'array');
-			$availableAdapters = $default;
-		}
+        if ($default === null) {
+            $availableAdapters = $this->getHttpTransports();
+        } else {
+            settype($default, 'array');
+            $availableAdapters = $default;
+        }
 
-		// Check if there is at least one available http transport adapter
-		if (!\count($availableAdapters))
-		{
-			return false;
-		}
+        // Check if there is at least one available http transport adapter
+        if (!\count($availableAdapters)) {
+            return false;
+        }
 
-		foreach ($availableAdapters as $adapter)
-		{
-			$class = __NAMESPACE__ . '\\Transport\\' . ucfirst($adapter);
+        foreach ($availableAdapters as $adapter) {
+            $class = __NAMESPACE__ . '\\Transport\\' . ucfirst($adapter);
 
-			if (class_exists($class))
-			{
-				if ($class::isSupported())
-				{
-					return new $class($options);
-				}
-			}
-		}
+            if (class_exists($class)) {
+                if ($class::isSupported()) {
+                    return new $class($options);
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Get the HTTP transport handlers
-	 *
-	 * @return  string[]  An array of available transport handler types
-	 *
-	 * @since   1.0
-	 */
-	public function getHttpTransports()
-	{
-		$names    = [];
-		$iterator = new \DirectoryIterator(__DIR__ . '/Transport');
+    /**
+     * Get the HTTP transport handlers
+     *
+     * @return  string[]  An array of available transport handler types
+     *
+     * @since   1.0
+     */
+    public function getHttpTransports()
+    {
+        $names    = [];
+        $iterator = new \DirectoryIterator(__DIR__ . '/Transport');
 
-		/** @var \DirectoryIterator $file */
-		foreach ($iterator as $file)
-		{
-			$fileName = $file->getFilename();
+        /** @var \DirectoryIterator $file */
+        foreach ($iterator as $file) {
+            $fileName = $file->getFilename();
 
-			// Only load for php files.
-			if ($file->isFile() && $file->getExtension() == 'php')
-			{
-				$names[] = substr($fileName, 0, strrpos($fileName, '.'));
-			}
-		}
+            // Only load for php files.
+            if ($file->isFile() && $file->getExtension() == 'php') {
+                $names[] = substr($fileName, 0, strrpos($fileName, '.'));
+            }
+        }
 
-		// Keep alphabetical order across all environments
-		sort($names);
+        // Keep alphabetical order across all environments
+        sort($names);
 
-		// If curl is available set it to the first position
-		$key = array_search('Curl', $names);
+        // If curl is available set it to the first position
+        $key = array_search('Curl', $names);
 
-		if ($key)
-		{
-			unset($names[$key]);
-			array_unshift($names, 'Curl');
-		}
+        if ($key) {
+            unset($names[$key]);
+            array_unshift($names, 'Curl');
+        }
 
-		return $names;
-	}
+        return $names;
+    }
 }
