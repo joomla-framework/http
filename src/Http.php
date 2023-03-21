@@ -41,9 +41,9 @@ class Http implements ClientInterface
     /**
      * Constructor.
      *
-     * @param   array|\ArrayAccess  $options    Client options array. If the registry contains any headers.* elements,
-     *                                          these will be added to the request headers.
-     * @param   TransportInterface  $transport  The HTTP transport object.
+     * @param   array|\ArrayAccess   $options    Client options array. If the registry contains any headers.* elements,
+     *                                           these will be added to the request headers.
+     * @param   ?TransportInterface  $transport  The HTTP transport object.
      *
      * @since   1.0
      * @throws  \InvalidArgumentException

@@ -190,7 +190,7 @@ class Curl extends AbstractTransport
     /**
      * Configure the cURL resources with the appropriate root certificates.
      *
-     * @param   resource  $ch  The cURL resource you want to configure the certificates on.
+     * @param   \CurlHandle  $ch  The cURL resource you want to configure the certificates on.
      *
      * @return  void
      *

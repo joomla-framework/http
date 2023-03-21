@@ -30,10 +30,10 @@ class UnexpectedResponseException extends \DomainException implements ClientExce
     /**
      * Constructor
      *
-     * @param   Response    $response  The Response object.
-     * @param   string      $message   The Exception message to throw.
-     * @param   integer     $code      The Exception code.
-     * @param   \Exception  $previous  The previous exception used for the exception chaining.
+     * @param   Response     $response  The Response object.
+     * @param   string       $message   The Exception message to throw.
+     * @param   integer      $code      The Exception code.
+     * @param   ?\Exception  $previous  The previous exception used for the exception chaining.
      *
      * @since   1.2.0
      */
