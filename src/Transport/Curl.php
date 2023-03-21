@@ -240,9 +240,8 @@ class Curl extends AbstractTransport
 
             // Set the body for the response.
             $body = substr($content, $info['header_size']);
-        }
-        // Fallback and try to guess header count by redirect count
-        else {
+        } else {
+            // Fallback and try to guess header count by redirect count
             // Get the number of redirects that occurred.
             $redirects = $info['redirect_count'] ?? 0;
 
