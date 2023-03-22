@@ -217,10 +217,8 @@ class Socket extends AbstractTransport
         // If the port is not explicitly set in the URI detect it.
         if (!$uri->getPort()) {
             $port = ($uri->getScheme() == 'https') ? 443 : 80;
-        }
-
-        // Use the set port.
-        else {
+        } else {
+            // Use the set port.
             $port = $uri->getPort();
         }
 
@@ -236,10 +234,8 @@ class Socket extends AbstractTransport
                 if (!fclose($this->connections[$key])) {
                     throw new \RuntimeException('Cannot close connection');
                 }
-            }
-
-            // Make sure the connection has not timed out.
-            elseif (!$meta['timed_out']) {
+            } elseif (!$meta['timed_out']) {
+                // Make sure the connection has not timed out.
                 return $this->connections[$key];
             }
         }
