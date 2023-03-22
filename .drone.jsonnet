@@ -26,7 +26,10 @@ local phpunit(phpversion) = {
     name: "PHPUnit",
     image: "joomlaprojects/docker-images:php" + phpversion,
     [if phpversion == "8.3" then "failure"]: "ignore",
-    commands: ["vendor/bin/phpunit"]
+    commands: [
+      "php -S localhost:8080 -t Tests/stubs &",
+      "vendor/bin/phpunit"
+    ]
 };
 
 local pipeline(name, phpversion, params) = {

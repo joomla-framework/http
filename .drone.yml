@@ -61,6 +61,7 @@ steps:
   - name: composer-cache
     path: /tmp/composer-cache
 - commands:
+  - php -S localhost:8080 -t Tests/stubs &
   - vendor/bin/phpunit
   image: joomlaprojects/docker-images:php8.1
   name: PHPUnit
@@ -81,6 +82,7 @@ steps:
   - name: composer-cache
     path: /tmp/composer-cache
 - commands:
+  - php -S localhost:8080 -t Tests/stubs &
   - vendor/bin/phpunit
   image: joomlaprojects/docker-images:php8.1
   name: PHPUnit
@@ -101,6 +103,7 @@ steps:
   - name: composer-cache
     path: /tmp/composer-cache
 - commands:
+  - php -S localhost:8080 -t Tests/stubs &
   - vendor/bin/phpunit
   image: joomlaprojects/docker-images:php8.2
   name: PHPUnit
@@ -110,6 +113,6 @@ volumes:
   name: composer-cache
 ---
 kind: signature
-hmac: 40ecd3996102a30203fa7ef10e07929c752bc4eac823ada6355837696b4f6e5f
+hmac: 22dea03e9152e3df41f95a832d2edb6b6a2ba49720766ded75238d26578e674d
 
 ...
