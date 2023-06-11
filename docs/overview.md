@@ -94,7 +94,7 @@ $response = $http->trace('http://api.example.com/cars/1');
 
 ### Working with options
 
-Custom headers can be pased into each REST request, but they can also be set globally in the constructor options where the
+Custom headers can be passed into each REST request, but they can also be set globally in the constructor options where the
 option path starts with "headers.". In the case where a request method passes additional headers, those will override the
 headers set in the options.
 
