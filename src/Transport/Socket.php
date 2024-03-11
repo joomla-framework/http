@@ -81,7 +81,7 @@ class Socket extends AbstractTransport
         }
 
         // Configure protocol version, use transport's default if not set otherwise.
-        $protocolVersion = $this->getOption('protocolVersion', '1.1');
+        $protocolVersion = $this->getOption('protocolVersion', '1.0');
 
         // Build the request payload.
         $request   = [];
