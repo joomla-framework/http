@@ -17,4 +17,7 @@
     <rule ref="Joomla">
         <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
     </rule>
+
+    <rule ref="Joomla.Classes.InstantiateNewClasses">
+    </rule>
 </ruleset>
