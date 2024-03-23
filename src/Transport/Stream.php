@@ -81,6 +81,11 @@ class Stream extends AbstractTransport
         // Configure protocol version, use transport's default if not set otherwise.
         $options['protocol_version'] = $this->getOption('protocolVersion', '1.0');
 
+        // HTTP/1.1 streams using the PHP stream wrapper require a Connection: close header
+        if ($options['protocol_version'] == '1.1' && !isset($headers['Connection'])) {
+            $headers['Connection'] = 'close';
+        }
+
         // Add the proxy configuration if enabled
         if ($this->getOption('proxy.enabled', false)) {
             $options['request_fulluri'] = true;
