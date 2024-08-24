@@ -48,7 +48,7 @@ class Http implements ClientInterface
      * @since   1.0
      * @throws  \InvalidArgumentException
      */
-    public function __construct($options = [], TransportInterface $transport = null)
+    public function __construct($options = [], ?TransportInterface $transport = null)
     {
         if (!\is_array($options) && !($options instanceof \ArrayAccess)) {
             throw new \InvalidArgumentException(
