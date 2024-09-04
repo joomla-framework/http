@@ -37,7 +37,7 @@ class UnexpectedResponseException extends \DomainException implements ClientExce
      *
      * @since   1.2.0
      */
-    public function __construct(Response $response, $message = '', $code = 0, \Exception $previous = null)
+    public function __construct(Response $response, $message = '', $code = 0, ?\Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
