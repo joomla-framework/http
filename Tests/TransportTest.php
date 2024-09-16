@@ -14,6 +14,10 @@ use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use PHPUnit\Framework\TestCase;
 
+use function array_merge;
+use function json_decode;
+use function sprintf;
+
 /**
  * Test class for Joomla\Http\TransportInterface instances.
  *
@@ -69,14 +73,24 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can only be created with an appropriate data type for the options
+     * Data provider for the request test methods.
      *
-     * @param    string  $transportClass  The transport class to test
+     * @return  \Generator
+     */
+    public function relevantOnlyForStreamTransportProvider(): \Generator
+    {
+        yield 'stream adapter' => [Stream::class];
+    }
+
+    /**
+     * @testdox       A transport can only be created with an appropriate data type for the options
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @param   string  $transportClass  The transport class to test
+     *
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -93,14 +107,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can make a GET request
+     * @testdox       A transport can make a GET request
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -115,7 +129,7 @@ class TransportTest extends TestCase
 
         $response = $transport->request('GET', new Uri($this->stubUrl));
 
-        $body = json_decode((string) $response->getBody());
+        $body = json_decode((string)$response->getBody());
 
         $this->assertSame(
             200,
@@ -129,14 +143,89 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport fails to make a GET request to an invalid domain
+     * @testdox       A stream transport can make a GET request when blocking mode is enabled
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
+     *
+     * @dataProvider  relevantOnlyForStreamTransportProvider
+     *
+     *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
+     * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
+     */
+    public function testRequestGetWhenBlockingModeIsEnabled(string $transportClass)
+    {
+        if (!$transportClass::isSupported() || $transportClass != Stream::class) {
+            $this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+        }
+
+        /** @var TransportInterface $transport */
+        $transport = new $transportClass(array_merge($this->options['transport.stream'], ['set_blocking' => true]));
+
+        $response = $transport->request('GET', new Uri($this->stubUrl));
+
+        $body = json_decode((string)$response->getBody());
+
+        $this->assertSame(
+            200,
+            $response->getStatusCode()
+        );
+
+        $this->assertSame(
+            'GET',
+            $body->method
+        );
+    }
+
+    /**
+     * @testdox       A stream transport can make a GET request when blocking mode is disabled
+     *
+     * @param   string  $transportClass  The transport class to test
+     *
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
+     *
+     * @dataProvider  relevantOnlyForStreamTransportProvider
+     *
+     *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
+     * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
+     */
+    public function testRequestGetWhenBlockingModeIsDisabled(string $transportClass)
+    {
+        if (!$transportClass::isSupported() || $transportClass != Stream::class) {
+            $this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+        }
+
+        /** @var TransportInterface $transport */
+        $transport = new $transportClass(array_merge($this->options['transport.stream'], ['set_blocking' => false]));
+
+        $response = $transport->request('GET', new Uri($this->stubUrl));
+
+        $body = json_decode((string)$response->getBody());
+
+        $this->assertSame(
+            200,
+            $response->getStatusCode()
+        );
+
+        $this->assertSame(
+            'GET',
+            $body->method
+        );
+    }
+
+
+    /**
+     * @testdox       A transport fails to make a GET request to an invalid domain
+     *
+     * @param   string  $transportClass  The transport class to test
+     *
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -155,14 +244,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport fails to make a GET request to an invalid URL
+     * @testdox       A transport fails to make a GET request to an invalid URL
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -184,14 +273,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can make a GET request
+     * @testdox       A transport can make a GET request
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -206,7 +295,7 @@ class TransportTest extends TestCase
 
         $response = $transport->request('PUT', new Uri($this->stubUrl));
 
-        $body = json_decode((string) $response->getBody());
+        $body = json_decode((string)$response->getBody());
 
         $this->assertSame(
             200,
@@ -220,14 +309,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can make a GET request with basic authentication
+     * @testdox       A transport can make a GET request with basic authentication
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -246,7 +335,7 @@ class TransportTest extends TestCase
 
         $response = $transport->request('GET', $uri);
 
-        $body = json_decode((string) $response->getBody());
+        $body = json_decode((string)$response->getBody());
 
         $this->assertSame(
             200,
@@ -265,14 +354,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can make a POST request with an array as the request data
+     * @testdox       A transport can make a POST request with an array as the request data
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -287,7 +376,7 @@ class TransportTest extends TestCase
 
         $response = $transport->request('POST', new Uri($this->stubUrl . '?test=okay'), ['key' => 'value']);
 
-        $body = json_decode((string) $response->getBody());
+        $body = json_decode((string)$response->getBody());
 
         $this->assertSame(
             200,
@@ -306,14 +395,14 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox  A transport can make a POST request with a scalar value as the request data
+     * @testdox       A transport can make a POST request with a scalar value as the request data
      *
-     * @param    string  $transportClass  The transport class to test
+     * @param   string  $transportClass  The transport class to test
      *
-     * @covers   Joomla\Http\Transport\Curl
-     * @covers   Joomla\Http\Transport\Socket
-     * @covers   Joomla\Http\Transport\Stream
-     * @uses     Joomla\Http\AbstractTransport
+     * @covers        Joomla\Http\Transport\Curl
+     * @covers        Joomla\Http\Transport\Socket
+     * @covers        Joomla\Http\Transport\Stream
+     * @uses          Joomla\Http\AbstractTransport
      *
      * @dataProvider  transportProvider
      */
@@ -328,7 +417,7 @@ class TransportTest extends TestCase
 
         $response = $transport->request('post', new Uri($this->stubUrl . '?test=okay'), 'key=value');
 
-        $body = json_decode((string) $response->getBody());
+        $body = json_decode((string)$response->getBody());
 
         $this->assertSame(
             200,
