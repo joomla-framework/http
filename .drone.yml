@@ -112,7 +112,50 @@ volumes:
     path: /tmp/composer-cache
   name: composer-cache
 ---
+kind: pipeline
+name: PHP 8.3
+steps:
+- commands:
+  - php -v
+  - composer update --prefer-stable
+  image: joomlaprojects/docker-images:php8.3
+  name: composer
+  volumes:
+  - name: composer-cache
+    path: /tmp/composer-cache
+- commands:
+  - php -S localhost:8080 -t Tests/stubs &
+  - vendor/bin/phpunit
+  failure: ignore
+  image: joomlaprojects/docker-images:php8.3
+  name: PHPUnit
+volumes:
+- host:
+    path: /tmp/composer-cache
+  name: composer-cache
+---
+kind: pipeline
+name: PHP 8.4
+steps:
+- commands:
+  - php -v
+  - composer update --prefer-stable
+  image: joomlaprojects/docker-images:php8.4
+  name: composer
+  volumes:
+  - name: composer-cache
+    path: /tmp/composer-cache
+- commands:
+  - php -S localhost:8080 -t Tests/stubs &
+  - vendor/bin/phpunit
+  image: joomlaprojects/docker-images:php8.4
+  name: PHPUnit
+volumes:
+- host:
+    path: /tmp/composer-cache
+  name: composer-cache
+---
 kind: signature
-hmac: 9028edfd5ebe3be77548b2be1580777d1a7205dd690ad1893618961c39261a2e
+hmac: 48e78d415fd7eb7e041126b820e40933db0285283390f88b3c4b5aab9e972c03
 
 ...
