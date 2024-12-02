@@ -80,7 +80,7 @@ local pipeline(name, phpversion, params) = {
                 depends: [ "composer" ],
                 failure: "ignore",
                 commands: [
-                    "vendor/bin/phpstan analyse src",
+                    "./vendor/bin/phpstan",
                 ]
             },
             {
