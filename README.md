@@ -1,4 +1,4 @@
-# The HTTP Package [![Build Status](https://ci.joomla.org/api/badges/joomla-framework/http/status.svg?ref=refs/heads/3.x-dev)](https://ci.joomla.org/joomla-framework/http)
+# The HTTP Package [![Build Status](https://github.com/joomla-framework/http/actions/workflows/ci.yml/badge.svg?branch=3.x-dev)](https://github.com/joomla-framework/http)
 
 [![Latest Stable Version](https://poser.pugx.org/joomla/http/v/stable)](https://packagist.org/packages/joomla/http)
 [![Total Downloads](https://poser.pugx.org/joomla/http/downloads)](https://packagist.org/packages/joomla/http)
