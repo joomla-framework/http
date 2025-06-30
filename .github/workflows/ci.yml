@@ -11,5 +11,84 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    framework-ci:
-        uses: joomla-framework/.github/.github/workflows/workflow-v3.yml@main
+    composer:
+        name: Install PHP dependencies
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.1
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v4
+              id: cache-php
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Install PHP dependencies
+              if: steps.cache-php.outputs.cache-hit != 'true'
+              run: |
+                  git config --global --add safe.directory $GITHUB_WORKSPACE
+                  composer config --global home
+                  composer install --no-progress --ignore-platform-reqs
+
+    code-style-php:
+        name: Check PHP code style
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.1
+        needs: [composer]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache/restore@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Check PHP code style
+              env:
+                  PHP_CS_FIXER_IGNORE_ENV: true
+              run: ./vendor/bin/phpcs --standard=ruleset.xml src/
+
+    phpstan:
+        name: Run PHPstan
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.4
+        needs: [code-style-php]
+        continue-on-error: true
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache/restore@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+            - name: Run PHPstan
+              run: |
+                  ./vendor/bin/phpstan --error-format=github
+
+    tests-unit-lowest:
+        name: Run Unit tests
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php8.1
+        needs: [code-style-php]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Run Unit tests
+              run: |
+                  git config --global --add safe.directory $GITHUB_WORKSPACE
+                  composer update --prefer-stable --prefer-lowest
+                  php -S localhost:8080 -t Tests/stubs &
+                  ./vendor/bin/phpunit
+
+    tests-unit:
+        name: Run Unit tests
+        runs-on: ubuntu-latest
+        container: joomlaprojects/docker-images:php${{ matrix.php_version }}
+        needs: [code-style-php]
+        strategy:
+            matrix:
+                php_version: ['8.1', '8.2', '8.3']
+        steps:
+            - uses: actions/checkout@v4
+            - name: Run Unit tests
+              run: |
+                  git config --global --add safe.directory $GITHUB_WORKSPACE
+                  composer update
+                  php -S localhost:8080 -t Tests/stubs &
+                  ./vendor/bin/phpunit
+
