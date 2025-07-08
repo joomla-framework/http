@@ -12,6 +12,7 @@ use Joomla\Http\Transport\Socket;
 use Joomla\Http\Transport\Stream;
 use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -63,23 +64,27 @@ class TransportTest extends TestCase
     /**
      * Data provider for the request test methods.
      *
-     * @return  \Generator
+     * @return  array
      */
-    public function transportProvider(): \Generator
+    public static function transportProvider(): array
     {
-        yield 'curl adapter' => [Curl::class];
-        yield 'socket adapter' => [Socket::class];
-        yield 'stream adapter' => [Stream::class];
+        return [
+            'curl adapter' => [Curl::class],
+            'socket adapter' => [Socket::class],
+            'stream adapter' => [Stream::class],
+        ];
     }
 
     /**
      * Data provider for the request test methods.
      *
-     * @return  \Generator
+     * @return  array
      */
-    public function relevantOnlyForStreamTransportProvider(): \Generator
+    public static function relevantOnlyForStreamTransportProvider(): array
     {
-        yield 'stream adapter' => [Stream::class];
+        return [
+            'stream adapter' => [Stream::class],
+        ];
     }
 
     /**
@@ -87,13 +92,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testConstructorWithBadDataObject(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -111,13 +115,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestGet(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -147,14 +150,13 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  relevantOnlyForStreamTransportProvider
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      *
      *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
      * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
      */
+    #[DataProvider('relevantOnlyForStreamTransportProvider')]
     public function testRequestGetWhenBlockingModeIsEnabled(string $transportClass)
     {
         if (!$transportClass::isSupported() || $transportClass != Stream::class) {
@@ -184,14 +186,13 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  relevantOnlyForStreamTransportProvider
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      *
      *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
      * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
      */
+    #[DataProvider('relevantOnlyForStreamTransportProvider')]
     public function testRequestGetWhenBlockingModeIsDisabled(string $transportClass)
     {
         if (!$transportClass::isSupported() || $transportClass != Stream::class) {
@@ -222,13 +223,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testBadDomainRequestGet(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -248,13 +248,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestGet404(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -277,13 +276,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestPut(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -313,13 +311,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestCredentials(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -358,13 +355,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestPost(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -399,13 +395,12 @@ class TransportTest extends TestCase
      *
      * @param   string  $transportClass  The transport class to test
      *
-     * @covers        Joomla\Http\Transport\Curl
-     * @covers        Joomla\Http\Transport\Socket
-     * @covers        Joomla\Http\Transport\Stream
-     * @uses          Joomla\Http\AbstractTransport
-     *
-     * @dataProvider  transportProvider
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
      */
+    #[DataProvider('transportProvider')]
     public function testRequestPostScalar(string $transportClass)
     {
         if (!$transportClass::isSupported()) {

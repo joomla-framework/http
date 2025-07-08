@@ -18,51 +18,39 @@ class ResponseTest extends TestCase
     /**
      * @testdox  The status code can be accessed through the deprecated property access
      *
-     * @covers   Joomla\Http\Response
+     * @covers   \Joomla\Http\Response
      */
     public function testReadResponseCode()
     {
         $this->assertSame(
             200,
-            (new Response('php://memory', 200, []))->code
+            (new Response('php://memory', 200, []))->getStatusCode()
         );
     }
 
     /**
      * @testdox  The response body can be accessed through the deprecated property access
      *
-     * @covers   Joomla\Http\Response
+     * @covers   \Joomla\Http\Response
      */
     public function testReadResponseBody()
     {
         $this->assertSame(
             '',
-            (new Response('php://memory', 200, []))->body
+            (new Response('php://memory', 200, []))->getBody()->getContents()
         );
     }
 
     /**
      * @testdox  The response headers can be accessed through the deprecated property access
      *
-     * @covers   Joomla\Http\Response
+     * @covers   \Joomla\Http\Response
      */
     public function testReadResponseHeaders()
     {
         $this->assertSame(
             ['Location' => ['https://example.com']],
-            (new Response('php://memory', 200, ['Location' => ['https://example.com']]))->headers
+            (new Response('php://memory', 200, ['Location' => ['https://example.com']]))->getHeaders()
         );
-    }
-
-    /**
-     * @testdox  Reading an unknown property generates an error
-     *
-     * @covers   Joomla\Http\Response
-     */
-    public function testReadUnknownProperty()
-    {
-        $this->expectNotice();
-
-        (new Response('php://memory', 200, ['Location' => ['https://example.com']]))->foo;
     }
 }
