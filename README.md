@@ -10,16 +10,16 @@ over a variety of transport protocols.
 
 ## Requirements
 
-* PHP 8.1 or later
+* PHP 8.3 or later
 
 ## Installation via Composer
 
-Add `"joomla/http": "~3.0"` to the require block in your composer.json and then run `composer install`.
+Add `"joomla/http": "~4.0"` to the require block in your composer.json and then run `composer install`.
 
 ```json
 {
 	"require": {
-		"joomla/http": "~3.0"
+		"joomla/http": "~4.0"
 	}
 }
 ```
@@ -27,11 +27,11 @@ Add `"joomla/http": "~3.0"` to the require block in your composer.json and then 
 Alternatively, you can simply run the following from the command line:
 
 ```sh
-composer require joomla/http "~3.0"
+composer require joomla/http "~4.0"
 ```
 
 If you want to include the test sources and docs, use
 
 ```sh
-composer require --prefer-source joomla/http "~3.0"
+composer require --prefer-source joomla/http "~4.0"
 ```
