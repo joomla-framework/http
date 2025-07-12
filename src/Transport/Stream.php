@@ -258,6 +258,6 @@ class Stream extends AbstractTransport
      */
     public static function isSupported()
     {
-        return \function_exists('fopen') && \is_callable('fopen') && ini_get('allow_url_fopen');
+        return \function_exists('fopen') && ini_get('allow_url_fopen');
     }
 }

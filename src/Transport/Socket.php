@@ -286,6 +286,6 @@ class Socket extends AbstractTransport
      */
     public static function isSupported()
     {
-        return \function_exists('fsockopen') && \is_callable('fsockopen');
+        return \function_exists('fsockopen');
     }
 }
