@@ -1,0 +1,16 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/AbstractTransport.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/Http.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 2
+			path: src/HttpFactory.php
