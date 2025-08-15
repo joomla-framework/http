@@ -153,6 +153,7 @@ class Stream extends AbstractTransport
             'http' => $options,
             'ssl'  => [
                 'verify_peer'      => true,
+                'cafile'           => $this->getOption('stream.certpath', CaBundle::getBundledCaBundlePath()),
                 'verify_depth'     => 5,
                 'verify_peer_name' => true,
             ],

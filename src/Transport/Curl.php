@@ -155,6 +155,15 @@ class Curl extends AbstractTransport
             $options[\CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($protocolVersion);
         }
 
+        // Proxy configuration
+        if ($this->getOption('proxy.enabled', false)) {
+            $options[CURLOPT_PROXY] = $this->getOption('proxy.host') . ':' . $this->getOption('proxy.port');
+
+            if ($user = $this->getOption('proxy.user')) {
+                $options[CURLOPT_PROXYUSERPWD] = $user . ':' . $this->getOption('proxy.pass');
+            }
+        }
+
         // Set any custom transport options
         foreach ($this->getOption('transport.curl', []) as $key => $value) {
             $options[$key] = $value;
@@ -184,7 +193,20 @@ class Curl extends AbstractTransport
         // Close the connection.
         curl_close($ch);
 
-        return $this->getResponse($content, $info);
+        $response = $this->getResponse($content, $info);
+
+        // Manually follow redirects if server doesn't allow to follow location using curl
+        if ($response->getStatusCode() >= 301 && $response->getStatusCode() < 400 && isset($response->getHeaders()['Location']) && (bool) $this->getOption('follow_location', true)) {
+            $redirect_uri = $response->getHeaders()['Location'][0];
+
+            if (str_starts_with($redirect_uri, 'file:') || str_starts_with($redirect_uri, 'scp:')) {
+                throw new \RuntimeException('Curl redirect cannot be used in file or scp requests.');
+            }
+
+            $response = $this->request($method, $redirect_uri, $data, $headers, $timeout, $userAgent);
+        }
+
+        return $response;
     }
 
     /**
@@ -327,6 +349,13 @@ class Curl extends AbstractTransport
      */
     private function redirectsAllowed(): bool
     {
-        return true;
+        $curlVersion = curl_version();
+
+        // If open_basedir is enabled we also need to check if libcurl version is 7.19.4 or higher
+        if (!\ini_get('open_basedir') || version_compare($curlVersion['version'], '7.19.4', '>=')) {
+            return true;
+        }
+
+        return false;
     }
 }
