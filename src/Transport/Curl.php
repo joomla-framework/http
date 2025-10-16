@@ -181,9 +181,6 @@ class Curl extends AbstractTransport
         // Get the request information.
         $info = curl_getinfo($ch);
 
-        // Close the connection.
-        curl_close($ch);
-
         return $this->getResponse($content, $info);
     }
 
