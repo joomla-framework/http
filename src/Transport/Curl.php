@@ -69,9 +69,6 @@ class Curl extends AbstractTransport
         // Don't wait for body when $method is HEAD
         $options[\CURLOPT_NOBODY] = ($method === 'HEAD');
 
-        // Initialize the certificate store
-        $options[CURLOPT_CAINFO] = $this->getOption('curl.certpath', CaBundle::getSystemCaRootBundlePath());
-
         // If data exists let's encode it and make sure our Content-type header is set.
         if (isset($data)) {
             // If the data is a scalar value simply add it to the cURL post fields.
