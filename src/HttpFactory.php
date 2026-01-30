@@ -36,6 +36,13 @@ class HttpFactory
             );
         }
 
+        // Set default userAgent if nothing else is set
+        if (!isset($options['userAgent'])) {
+            $version              = new Version();
+            $options['userAgent'] = $version->getUserAgent('Joomla', true, false);
+        }
+
+
         if (!$driver = $this->getAvailableDriver($options, $adapters)) {
             throw new \RuntimeException('No transport driver available.');
         }
