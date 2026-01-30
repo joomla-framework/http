@@ -41,7 +41,6 @@ class HttpFactory
             $options['userAgent'] = 'Mozilla/5.0 Joomla!/Framework';
         }
 
-
         if (!$driver = $this->getAvailableDriver($options, $adapters)) {
             throw new \RuntimeException('No transport driver available.');
         }
