@@ -38,8 +38,7 @@ class HttpFactory
 
         // Set default userAgent if nothing else is set
         if (!isset($options['userAgent'])) {
-            $version              = new Version();
-            $options['userAgent'] = $version->getUserAgent('Joomla', true, false);
+            $options['userAgent'] = 'Mozilla/5.0 Joomla!';
         }
 
 
