@@ -81,7 +81,7 @@ jobs:
         needs: [code-style-php]
         strategy:
             matrix:
-                php_version: ['8.3', '8.4']
+                php_version: ['8.3', '8.4', '8.5']
         steps:
             - uses: actions/checkout@v6
             - name: Run Unit tests
@@ -90,4 +90,3 @@ jobs:
                   composer update
                   php -S localhost:8080 -t Tests/stubs &
                   ./vendor/bin/phpunit
-
