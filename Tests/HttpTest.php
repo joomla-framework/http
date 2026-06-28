@@ -14,6 +14,7 @@ use Joomla\Uri\Uri;
 use Laminas\Diactoros\Request;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 /**
  * Test class for Joomla\Http\Http.
@@ -61,6 +62,7 @@ class HttpTest extends TestCase
      *
      * @covers   Joomla\Http\Http
      */
+    #[AllowMockObjectsWithoutExpectations]
     public function testConstructorDisallowsNonArrayObjects()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -73,6 +75,7 @@ class HttpTest extends TestCase
      *
      * @covers   Joomla\Http\Http
      */
+    #[AllowMockObjectsWithoutExpectations]
     public function testOptionManagement()
     {
         $this->object->setOption('testKey', 'testValue');
@@ -201,6 +204,7 @@ class HttpTest extends TestCase
      *
      * @covers   Joomla\Http\Http
      */
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetWithInvalidUrl()
     {
         $this->expectException(\InvalidArgumentException::class);
