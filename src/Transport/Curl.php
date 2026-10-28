@@ -136,10 +136,8 @@ class Curl extends AbstractTransport
         // Link: http://the-stickman.com/web-development/php-and-curl-disabling-100-continue-header/
         $options[\CURLOPT_HTTPHEADER][] = 'Expect:';
 
-        // Follow redirects if server config allows
-        if ($this->redirectsAllowed()) {
-            $options[\CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
-        }
+        // Follow redirects if enabled
+        $options[\CURLOPT_FOLLOWLOCATION] = (bool) $this->getOption('follow_location', true);
 
         // Authentication, if needed
         if ($this->getOption('userauth') && $this->getOption('passwordauth')) {
@@ -150,6 +148,15 @@ class Curl extends AbstractTransport
         // Configure protocol version
         if ($protocolVersion = $this->getOption('protocolVersion')) {
             $options[\CURLOPT_HTTP_VERSION] = $this->mapProtocolVersion($protocolVersion);
+        }
+
+        // Proxy configuration
+        if ($this->getOption('proxy.enabled', false)) {
+            $options[CURLOPT_PROXY] = $this->getOption('proxy.host') . ':' . $this->getOption('proxy.port');
+
+            if ($user = $this->getOption('proxy.user')) {
+                $options[CURLOPT_PROXYUSERPWD] = $user . ':' . $this->getOption('proxy.pass');
+            }
         }
 
         // Set any custom transport options
@@ -310,17 +317,5 @@ class Curl extends AbstractTransport
         }
 
         return \CURL_HTTP_VERSION_NONE;
-    }
-
-    /**
-     * Check if redirects are allowed
-     *
-     * @return  boolean
-     *
-     * @since   1.2.1
-     */
-    private function redirectsAllowed(): bool
-    {
-        return true;
     }
 }
