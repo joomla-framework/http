@@ -36,6 +36,11 @@ class HttpFactory
             );
         }
 
+        // Set default userAgent if nothing else is set
+        if (!isset($options['userAgent'])) {
+            $options['userAgent'] = 'Mozilla/5.0 Joomla!/Framework';
+        }
+
         if (!$driver = $this->getAvailableDriver($options, $adapters)) {
             throw new \RuntimeException('No transport driver available.');
         }
