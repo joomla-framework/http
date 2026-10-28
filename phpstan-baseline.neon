@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Trait Joomla\\Http\\HttpFactoryAwareTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/HttpFactoryAwareTrait.php
+
+		-
 			message: '#^Instanceof between ArrayAccess and ArrayAccess will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
