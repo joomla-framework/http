@@ -8,18 +8,17 @@
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test class for Joomla\Http\Response.
  */
+#[CoversClass(Response::class)]
 class ResponseTest extends TestCase
 {
-    /**
-     * @testdox  The status code can be accessed through the deprecated property access
-     *
-     * @covers   \Joomla\Http\Response
-     */
+    #[TestDox('The status code can be accessed through the deprecated property access')]
     public function testReadResponseCode()
     {
         $this->assertSame(
@@ -28,11 +27,7 @@ class ResponseTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  The response body can be accessed through the deprecated property access
-     *
-     * @covers   \Joomla\Http\Response
-     */
+    #[TestDox('The response body can be accessed through the deprecated property access')]
     public function testReadResponseBody()
     {
         $this->assertSame(
@@ -41,11 +36,7 @@ class ResponseTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  The response headers can be accessed through the deprecated property access
-     *
-     * @covers   \Joomla\Http\Response
-     */
+    #[TestDox('The response headers can be accessed through the deprecated property access')]
     public function testReadResponseHeaders()
     {
         $this->assertSame(

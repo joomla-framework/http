@@ -12,13 +12,16 @@ use Joomla\Http\Response;
 use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
 use Laminas\Diactoros\Request;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 /**
  * Test class for Joomla\Http\Http.
  */
+#[CoversClass(Http::class)]
 class HttpTest extends TestCase
 {
     /**
@@ -57,12 +60,8 @@ class HttpTest extends TestCase
         $this->object = new Http($this->options, $this->transport);
     }
 
-    /**
-     * @testdox  The constructor disallows invalid data objects
-     *
-     * @covers   Joomla\Http\Http
-     */
     #[AllowMockObjectsWithoutExpectations]
+    #[TestDox('The constructor disallows invalid data objects')]
     public function testConstructorDisallowsNonArrayObjects()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -70,12 +69,8 @@ class HttpTest extends TestCase
         new Http(new \stdClass());
     }
 
-    /**
-     * @testdox  The driver's options can be managed
-     *
-     * @covers   Joomla\Http\Http
-     */
     #[AllowMockObjectsWithoutExpectations]
+    #[TestDox("The driver's options can be managed")]
     public function testOptionManagement()
     {
         $this->object->setOption('testKey', 'testValue');
@@ -86,11 +81,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A OPTIONS request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A OPTIONS request can be sent')]
     public function testOptions()
     {
         $response = new Response();
@@ -106,11 +97,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A HEAD request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A HEAD request can be sent')]
     public function testHead()
     {
         // Set header option
@@ -137,11 +124,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A GET request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A GET request can be sent')]
     public function testGet()
     {
         // Set timeout option
@@ -168,11 +151,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A GET request can be sent when passing a URI object
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A GET request can be sent when passing a URI object')]
     public function testGetWithUri()
     {
         // Set timeout option
@@ -199,12 +178,8 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  Sending a GET request fails with an invalid data type for the URI
-     *
-     * @covers   Joomla\Http\Http
-     */
     #[AllowMockObjectsWithoutExpectations]
+    #[TestDox('Sending a GET request fails with an invalid data type for the URI')]
     public function testGetWithInvalidUrl()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -213,11 +188,7 @@ class HttpTest extends TestCase
         $this->object->get([]);
     }
 
-    /**
-     * @testdox  A POST request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A POST request can be sent')]
     public function testPost()
     {
         $response = new Response();
@@ -242,11 +213,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A PUT request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A PUT request can be sent')]
     public function testPut()
     {
         $response = new Response();
@@ -271,11 +238,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A DELETE request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A DELETE request can be sent')]
     public function testDelete()
     {
         $response = new Response();
@@ -298,11 +261,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A TRACE request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A TRACE request can be sent')]
     public function testTrace()
     {
         $response = new Response();
@@ -325,11 +284,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A PATCH request can be sent
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A PATCH request can be sent')]
     public function testPatch()
     {
         $response = new Response();
@@ -354,11 +309,7 @@ class HttpTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A request can be sent using a PSR-18 RequestInterface
-     *
-     * @covers   Joomla\Http\Http
-     */
+    #[TestDox('A request can be sent using a PSR-18 RequestInterface')]
     public function testSendRequest()
     {
         $response = new Response();

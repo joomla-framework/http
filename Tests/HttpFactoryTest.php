@@ -7,14 +7,23 @@
 
 namespace Joomla\Http\Tests;
 
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Http;
 use Joomla\Http\HttpFactory;
+use Joomla\Http\Transport\Curl;
 use Joomla\Http\TransportInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test class for Joomla\Http\HttpFactory.
  */
+#[CoversClass(HttpFactory::class)]
+#[UsesClass(AbstractTransport::class)]
+#[UsesClass(Http::class)]
+#[UsesClass(Curl::class)]
 class HttpFactoryTest extends TestCase
 {
     /**
@@ -36,14 +45,7 @@ class HttpFactoryTest extends TestCase
         $this->instance = new HttpFactory();
     }
 
-    /**
-     * @testdox  A HTTP client can be created
-     *
-     * @covers   Joomla\Http\HttpFactory
-     * @uses     Joomla\Http\AbstractTransport
-     * @uses     Joomla\Http\Http
-     * @uses     Joomla\Http\Transport\Curl
-     */
+    #[TestDox('A HTTP client can be created')]
     public function testGetHttp()
     {
         $this->assertInstanceOf(
@@ -52,11 +54,7 @@ class HttpFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A HTTP client can only be created with an appropriate options data type
-     *
-     * @covers   Joomla\Http\HttpFactory
-     */
+    #[TestDox('A HTTP client can only be created with an appropriate options data type')]
     public function testGetHttpDisallowsNonArrayObjects()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -64,11 +62,7 @@ class HttpFactoryTest extends TestCase
         $this->instance->getHttp(new \stdClass());
     }
 
-    /**
-     * @testdox  A HTTP client cannot be created when no transport driver is available
-     *
-     * @covers  Joomla\Http\HttpFactory
-     */
+    #[TestDox('A HTTP client cannot be created when no transport driver is available')]
     public function testGetHttpException()
     {
         $this->expectException(\RuntimeException::class);
@@ -79,13 +73,7 @@ class HttpFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A transport driver can be created
-     *
-     * @covers   Joomla\Http\HttpFactory
-     * @uses     Joomla\Http\AbstractTransport
-     * @uses     Joomla\Http\Transport\Curl
-     */
+    #[TestDox('A transport driver can be created')]
     public function testGetAvailableDriver()
     {
         $this->assertInstanceOf(
@@ -111,11 +99,7 @@ class HttpFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @testdox  A driver can only be created with an appropriate options data type
-     *
-     * @covers   Joomla\Http\HttpFactory
-     */
+    #[TestDox('A driver can only be created with an appropriate options data type')]
     public function testGetAvailableDriverDisallowsNonArrayObjects()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -123,17 +107,13 @@ class HttpFactoryTest extends TestCase
         $this->instance->getAvailableDriver(new \stdClass());
     }
 
-    /**
-     * @testdox  The list of transport drivers is returned
-     *
-     * @covers   Joomla\Http\HttpFactory
-     */
+    #[TestDox('The list of transport drivers is returned')]
     public function testGetHttpTransports()
     {
         $transports = ['Stream', 'Socket', 'Curl'];
         sort($transports);
 
-        $this->assertEquals(
+        $this->assertSame(
             $transports,
             $this->instance->getHttpTransports()
         );
