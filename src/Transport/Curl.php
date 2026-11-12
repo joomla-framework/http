@@ -71,21 +71,23 @@ class Curl extends AbstractTransport
 
         // If data exists let's encode it and make sure our Content-type header is set.
         if (isset($data)) {
+            $contentType = $this->getHeaderValue($headers, 'Content-Type');
+
             // If the data is a scalar value simply add it to the cURL post fields.
-            if (is_scalar($data) || (isset($headers['Content-Type']) && strpos($headers['Content-Type'], 'multipart/form-data') === 0)) {
+            if (is_scalar($data) || ($contentType !== null && stripos($contentType, 'multipart/form-data') === 0)) {
                 $options[\CURLOPT_POSTFIELDS] = $data;
             } else {
                 // Otherwise we need to encode the value first.
                 $options[\CURLOPT_POSTFIELDS] = http_build_query($data);
             }
 
-            if (!isset($headers['Content-Type'])) {
+            if ($contentType === null) {
                 $headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
             }
 
             // Add the relevant headers.
             if (is_scalar($options[\CURLOPT_POSTFIELDS])) {
-                $headers['Content-Length'] = \strlen($options[\CURLOPT_POSTFIELDS]);
+                $headers = $this->setHeader($headers, 'Content-Length', \strlen($options[\CURLOPT_POSTFIELDS]));
             }
         }
 
@@ -108,8 +110,10 @@ class Curl extends AbstractTransport
         }
 
         // Curl needs the accepted encoding header as option
-        if (isset($headers['Accept-Encoding'])) {
-            $options[\CURLOPT_ENCODING] = $headers['Accept-Encoding'];
+        $acceptEncoding = $this->getHeaderValue($headers, 'Accept-Encoding');
+
+        if ($acceptEncoding !== null) {
+            $options[\CURLOPT_ENCODING] = $acceptEncoding;
         }
 
         // If an explicit timeout is given use it.

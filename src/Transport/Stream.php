@@ -62,12 +62,12 @@ class Stream extends AbstractTransport
                 $options['content'] = http_build_query($data);
             }
 
-            if (!isset($headers['Content-Type'])) {
+            if ($this->getHeaderValue($headers, 'Content-Type') === null) {
                 $headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
             }
 
             // Add the relevant headers.
-            $headers['Content-Length'] = \strlen($options['content']);
+            $headers = $this->setHeader($headers, 'Content-Length', \strlen($options['content']));
         }
 
         // If an explicit timeout is given user it.
@@ -90,7 +90,7 @@ class Stream extends AbstractTransport
         $options['protocol_version'] = $this->getOption('protocolVersion', '1.0');
 
         // HTTP/1.1 streams using the PHP stream wrapper require a Connection: close header
-        if ($options['protocol_version'] == '1.1' && !isset($headers['Connection'])) {
+        if ($options['protocol_version'] == '1.1' && $this->getHeaderValue($headers, 'Connection') === null) {
             $headers['Connection'] = 'close';
         }
 

@@ -48,6 +48,51 @@ abstract class AbstractTransport implements TransportInterface
     }
 
     /**
+     * Get the value of a request header, ignoring the case of its name.
+     *
+     * @param   array   $headers  The request headers, with a string or a list of strings per name.
+     * @param   string  $name     The name of the header.
+     *
+     * @return  string|null  The value, with list values joined by a comma, or null if the header is not set.
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function getHeaderValue(array $headers, string $name): ?string
+    {
+        foreach ($headers as $key => $value) {
+            if (strcasecmp((string) $key, $name) === 0) {
+                return implode(', ', (array) $value);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Set a request header, replacing a header of the same name in any case.
+     *
+     * @param   array   $headers  The request headers.
+     * @param   string  $name     The name of the header.
+     * @param   mixed   $value    The value of the header.
+     *
+     * @return  array  The request headers.
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function setHeader(array $headers, string $name, $value): array
+    {
+        foreach (array_keys($headers) as $key) {
+            if (strcasecmp((string) $key, $name) === 0) {
+                unset($headers[$key]);
+            }
+        }
+
+        $headers[$name] = $value;
+
+        return $headers;
+    }
+
+    /**
      * Get an option from the HTTP transport.
      *
      * @param   string  $key      The name of the option to get.
