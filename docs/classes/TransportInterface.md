@@ -105,7 +105,7 @@ with `getOption($key, $default)` and are transport-specific; the commonly used o
 | Option | Used by | Meaning |
 |---|---|---|
 | `userauth` / `passwordauth` | Curl | HTTP Basic credentials |
-| `follow_location` | Curl | Follow redirects, default `true` |
+| `follow_location` | Curl, Stream | Follow redirects, default `true`; the response at the end of the chain is returned |
 | `transport.curl` | Curl | Raw `CURLOPT_*` overrides, applied last |
 | `stream.certpath` | Stream | CA bundle file or directory |
 | `protocolVersion` | Curl | `1.0`, `1.1` or `2.0` |
