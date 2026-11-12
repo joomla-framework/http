@@ -115,6 +115,11 @@ $headers = ['Accept' => 'application/foo'];
 $pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1', $headers);
 ```
 
+Header names must be valid HTTP tokens, and header values (including the user agent) must not contain
+line breaks or NUL bytes. Every transport throws an `InvalidArgumentException` for a header that
+would otherwise split the request and inject further headers, so validate or strip such input when
+it comes from users.
+
 ## Things to know before you build on this
 
 **There is no SSRF protection.** Any URI is accepted and fetched, including private address ranges

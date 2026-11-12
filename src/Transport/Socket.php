@@ -62,6 +62,10 @@ class Socket extends AbstractTransport
             throw new \RuntimeException('Server connection timed out.');
         }
 
+        // Reject header names and values that would inject further headers.
+        $this->validateHeaders($headers);
+        $this->validateHeaders(['User-Agent' => (string) $userAgent]);
+
         // Get the request path from the URI object.
         $path = $uri->toString(['path', 'query']);
 

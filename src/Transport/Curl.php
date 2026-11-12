@@ -40,6 +40,10 @@ class Curl extends AbstractTransport
      */
     public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
     {
+        // Reject header names and values that would inject further headers.
+        $this->validateHeaders($headers);
+        $this->validateHeaders(['User-Agent' => (string) $userAgent]);
+
         // Setup the cURL handle.
         $ch = curl_init();
 

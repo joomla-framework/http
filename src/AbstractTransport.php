@@ -63,6 +63,36 @@ abstract class AbstractTransport implements TransportInterface
     }
 
     /**
+     * Validate the names and values of request headers.
+     *
+     * Header names must be RFC 9110 tokens and values must not contain line breaks or NUL bytes, which would
+     * otherwise allow injecting further headers into the request.
+     *
+     * @param   array  $headers  The request headers, with a string or a list of strings per name.
+     *
+     * @return  void
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  \InvalidArgumentException
+     */
+    protected function validateHeaders(array $headers): void
+    {
+        foreach ($headers as $name => $value) {
+            if (!preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/D', (string) $name)) {
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid header name.', $name));
+            }
+
+            foreach ((array) $value as $item) {
+                if (strpbrk((string) $item, "\r\n\0") !== false) {
+                    throw new \InvalidArgumentException(
+                        sprintf('The value of the "%s" header must not contain line breaks or NUL bytes.', $name)
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Processes the headers from a transport's response data.
      *
      * @param   array  $headers  The headers to process.
