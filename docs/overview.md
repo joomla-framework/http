@@ -117,9 +117,9 @@ $pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1',
 
 ## Things to know before you build on this
 
-**There is no SSRF protection.** Any URI is accepted and fetched, including private address ranges
-and non-HTTP schemes on the stream transport. If a target URL can come from user input or
-configuration, validate it before the call — resolve the host and reject private ranges yourself.
+**There is no SSRF protection.** Only `http` and `https` URLs are accepted (see below), but any host
+is, including private address ranges. If a target URL can come from user input or configuration,
+validate it before the call — resolve the host and reject private ranges yourself.
 
 **`transport.curl` overrides everything, including the security defaults.** The custom options are
 applied last, so a value such as `CURLOPT_SSL_VERIFYPEER => false` silently disables certificate
@@ -133,8 +133,8 @@ $http = (new HttpFactory())->getHttp(['transport.curl' => [CURLOPT_TIMEOUT => 5]
 Keep that array to non-security options, or re-assert the ones that matter afterwards.
 
 **Redirects are followed without a limit.** `CURLOPT_FOLLOWLOCATION` is enabled by default and
-neither `CURLOPT_MAXREDIRS` nor `CURLOPT_REDIR_PROTOCOLS` is set. Disable following, or set both,
-when the target is not fully trusted:
+`CURLOPT_MAXREDIRS` is not set. Disable following, or set it, when the target is not fully
+trusted:
 
 ```php
 $http = (new HttpFactory())->getHttp([
@@ -151,9 +151,16 @@ no stream context, so no CA bundle, minimum TLS version or client certificate ca
 the connection error is suppressed, so a certificate failure is indistinguishable from an
 unreachable host. Prefer the cURL or stream transport.
 
-**The stream transport accepts any wrapper.** The URI goes to `fopen()` unfiltered, so a `file://`,
-`php://` or `phar://` URL is opened rather than rejected. Check the scheme before calling if the
-URL is not your own.
+**Only `http` and `https` URLs are accepted.** `Http` throws an `InvalidArgumentException` for any
+other scheme, so a `file://`, `php://`, `phar://` or `gopher://` URL is rejected instead of being
+opened by `fopen()` or cURL, and the cURL transport refuses to follow a redirect to another
+protocol. Allow further schemes explicitly with the `allowedSchemes` option:
+
+```php
+$http = (new HttpFactory())->getHttp(['allowedSchemes' => ['http', 'https', 'ftp']]);
+```
+
+The scheme is checked by `Http`. A transport used on its own only has cURL's protocol restriction.
 
 **`Http::get()` and friends take positional arguments.** There is no request object, so headers and
 timeouts are passed per call:

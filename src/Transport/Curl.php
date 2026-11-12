@@ -126,6 +126,14 @@ class Curl extends AbstractTransport
         // Set the request URL.
         $options[\CURLOPT_URL] = (string) $uri;
 
+        // Restrict the protocols cURL may use, for the request and for redirects.
+        if (\defined('CURLOPT_PROTOCOLS_STR')) {
+            $protocols = implode(',', (array) $this->getOption('allowedSchemes', ['http', 'https']));
+
+            $options[\CURLOPT_PROTOCOLS_STR]       = $protocols;
+            $options[\CURLOPT_REDIR_PROTOCOLS_STR] = $protocols;
+        }
+
         // We want our headers. :-)
         $options[\CURLOPT_HEADER] = true;
 

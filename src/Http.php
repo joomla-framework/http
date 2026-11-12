@@ -302,6 +302,19 @@ class Http implements ClientInterface
             );
         }
 
+        // Only allow the configured schemes, so that a URL cannot make a transport read a local file or a PHP stream.
+        $allowedSchemes = array_map('strtolower', (array) ($this->options['allowedSchemes'] ?? ['http', 'https']));
+
+        if (!\in_array(strtolower((string) $url->getScheme()), $allowedSchemes, true)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'The "%s" scheme is not allowed, only %s. Use the allowedSchemes option to allow it.',
+                    (string) $url->getScheme(),
+                    implode(', ', $allowedSchemes)
+                )
+            );
+        }
+
         return $this->transport->request($method, $url, $data, $headers, $timeout, $userAgent);
     }
 }
