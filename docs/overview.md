@@ -7,7 +7,9 @@ Additionally, the main `Http` class provides support for sending requests as cov
 
 ### Making a HEAD request
 
-An HTTP HEAD request can be made using the head method passing a URL and an optional key-value array of header variables.
+An HTTP HEAD request can be made using the head method passing a URL and an optional key-value array of header variables. The
+response has no body, also when the server announces one with `Content-Length`; this holds for the method name in any
+case, e.g. `head` in a PSR-7 request sent with `sendRequest()`.
 
 ```php
 use Joomla\Http\HttpFactory;
