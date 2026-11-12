@@ -21,3 +21,27 @@ $transport = new StreamTransport($options);
 // Create a 'stream' transport.
 $http = new Http($options, $transport);
 ```
+
+### Sending a PSR-7 request
+
+`sendRequest()` implements the PSR-18 `ClientInterface`. The whole request body is sent, even if its stream
+was already read, and an empty body is sent as no data. The request's protocol version is not used; the
+transport's `protocolVersion` option decides.
+
+```php
+use Laminas\Diactoros\Request;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\NetworkExceptionInterface;
+
+try {
+    $response = $http->sendRequest(new Request('https://api.example.com/cars', 'GET'));
+} catch (NetworkExceptionInterface $e) {
+    // No response: the connection failed or was interrupted. $e->getRequest() is the request.
+} catch (ClientExceptionInterface $e) {
+    // Any other failure, such as a response without a status code.
+}
+```
+
+Transport failures are thrown as `Joomla\Http\Exception\NetworkException`, which implements
+`NetworkExceptionInterface` and still extends `RuntimeException`, so existing `catch (\RuntimeException $e)`
+blocks keep working.
