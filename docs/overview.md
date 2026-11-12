@@ -146,11 +146,6 @@ $http = (new HttpFactory())->getHttp([
 so a large or hostile response can exhaust `memory_limit`. Fetch untrusted URLs with your own
 limit in place.
 
-**The socket transport cannot be configured for TLS.** It connects with `fsockopen()`, which takes
-no stream context, so no CA bundle, minimum TLS version or client certificate can be supplied — and
-the connection error is suppressed, so a certificate failure is indistinguishable from an
-unreachable host. Prefer the cURL or stream transport.
-
 **The stream transport accepts any wrapper.** The URI goes to `fopen()` unfiltered, so a `file://`,
 `php://` or `phar://` URL is opened rather than rejected. Check the scheme before calling if the
 URL is not your own.

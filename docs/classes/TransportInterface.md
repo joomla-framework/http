@@ -2,7 +2,7 @@
 
 The contract every transport implements. `Http` holds one and delegates each request to it, so the
 interface is the seam where you replace how requests are actually sent — with cURL, with a stream,
-with a socket, or with a stub in tests.
+or with a stub in tests.
 
 ## The interface
 
@@ -35,7 +35,6 @@ directly.
 |---|---|---|
 | `Transport\Curl` | `ext-curl` loaded | The default when available |
 | `Transport\Stream` | `allow_url_fopen` enabled | Configurable TLS via a stream context |
-| `Transport\Socket` | `fsockopen()` exists | Cannot be configured for TLS — see below |
 
 `HttpFactory` picks one for you:
 
@@ -46,9 +45,6 @@ $http = (new HttpFactory())->getHttp();                          // first suppor
 $http = (new HttpFactory())->getHttp([], 'curl');                // force one
 $http = (new HttpFactory())->getHttp([], ['curl', 'stream']);    // first supported of these
 ```
-
-> Prefer `curl` or `stream`. `Socket` connects with `fsockopen()`, which accepts no stream context,
-> so no CA bundle, minimum TLS version or client certificate can be supplied for it.
 
 ## Writing a transport
 

@@ -8,7 +8,6 @@
 namespace Joomla\Http\Tests;
 
 use Joomla\Http\Transport\Curl;
-use Joomla\Http\Transport\Socket;
 use Joomla\Http\Transport\Stream;
 use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
@@ -33,7 +32,6 @@ class TransportTest extends TestCase
      */
     protected $options = [
         'transport.curl'   => [CURLOPT_SSL_VERIFYPEER => false],
-        'transport.socket' => ['X-Joomla-Test: true'],
         'transport.stream' => ['ignore_errors' => true],
     ];
 
@@ -70,7 +68,6 @@ class TransportTest extends TestCase
     {
         return [
             'curl adapter' => [Curl::class],
-            'socket adapter' => [Socket::class],
             'stream adapter' => [Stream::class],
         ];
     }
@@ -93,7 +90,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -116,7 +112,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -224,7 +219,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -249,7 +243,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -277,7 +270,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -312,7 +304,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -356,7 +347,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
@@ -396,7 +386,6 @@ class TransportTest extends TestCase
      * @param   string  $transportClass  The transport class to test
      *
      * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
      * @covers        \Joomla\Http\Transport\Stream
      * @uses          \Joomla\Http\AbstractTransport
      */
