@@ -260,17 +260,8 @@ class Curl extends AbstractTransport
             $headers = explode("\r\n", array_pop($response));
         }
 
-        // Get the response code from the first offset of the response headers.
-        preg_match('/[0-9]{3}/', array_shift($headers), $matches);
-
-        $code = \count($matches) ? $matches[0] : null;
-
-        if (!is_numeric($code)) {
-            // No valid response code was detected.
-            throw new InvalidResponseCodeException('No HTTP response code found.');
-        }
-
-        $statusCode      = (int) $code;
+        // Get the response code from the status line, the first offset of the response headers.
+        $statusCode      = $this->parseStatusCode(array_shift($headers));
         $verifiedHeaders = $this->processHeaders($headers);
 
         $streamInterface = new StreamResponse('php://memory', 'rw');
