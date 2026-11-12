@@ -60,9 +60,9 @@ $response = $http->post('http://api.example.com/cars/1', $data);
 
 ### Making a PUT request
 
-An HTTP POST request can be made using the post method passing a URL, a data variable, an optional key-value array of header
-variables and an optional timeout value. The data can be either an associative array of POST variables, or a string to be sent
-with the request. In RESTful terms, a PUT request is typically sent to update existing data on the server.
+An HTTP PUT request can be made using the put method passing a URL, a data variable, an optional key-value array of header
+variables and an optional timeout value. The data can be either an associative array, which is sent form-encoded, or a string to
+be sent with the request. In RESTful terms, a PUT request is typically sent to update existing data on the server.
 
 ```php
 // Prepare the update data.
@@ -94,16 +94,19 @@ $response = $http->trace('http://api.example.com/cars/1');
 
 ### Working with options
 
-Custom headers can be passed into each REST request, but they can also be set globally in the constructor options where the
-option path starts with "headers.". In the case where a request method passes additional headers, those will override the
+Custom headers can be passed into each REST request, but they can also be set globally in the `headers` option, an array
+of header names and values. In the case where a request method passes additional headers, those will override the
 headers set in the options.
 
 ```php
+use Joomla\Http\HttpFactory;
 
 // Configure a custom Accept header for all requests.
 $options = [
-    'headers.Accept' => 'application/vnd.github.html+json'
+    'headers' => ['Accept' => 'application/vnd.github.html+json'],
 ];
+
+$http = (new HttpFactory())->getHttp($options);
 
 // Make the request, knowing the custom Accept header will be used.
 $pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1');
@@ -114,6 +117,25 @@ $headers = ['Accept' => 'application/foo'];
 // In this case, the Accept header in $headers will override the options header.
 $pull = $http->get('https://api.github.com/repos/joomla-framework/http/pulls/1', $headers);
 ```
+
+The options can also be a `Joomla\Registry\Registry`; `$options->set('headers.Accept', …)` then sets the
+same value as `['headers' => ['Accept' => …]]`. With a plain array a key such as `'headers.Accept'` is not read.
+
+The client and the bundled transports read these options:
+
+| Option | Used by | Meaning |
+|---|---|---|
+| `headers` | `Http` | Headers sent with every request; a request's own headers win |
+| `timeout` | `Http` | Timeout in seconds for requests that do not pass one |
+| `userAgent` | `Http` | The user agent sent with every request |
+| `follow_location` | transports | Follow redirects, default `true` |
+| `protocolVersion` | transports | HTTP version: `1.0`, `1.1` or `2.0` (cURL only); the stream and socket transports default to `1.0` |
+| `transport.curl` | Curl | `CURLOPT_*` options, applied last |
+| `transport.stream` | Stream | Options for the `http` stream context, applied last |
+| `transport.socket` | Socket | Extra lines added to the request head |
+| `curl.certpath` / `stream.certpath` | Curl / Stream | CA bundle file (or directory for the stream transport) |
+
+See [TransportInterface](classes/TransportInterface.md#options) for the other transport options.
 
 ## Things to know before you build on this
 
@@ -132,9 +154,12 @@ $http = (new HttpFactory())->getHttp(['transport.curl' => [CURLOPT_TIMEOUT => 5]
 
 Keep that array to non-security options, or re-assert the ones that matter afterwards.
 
-**Redirects are followed without a limit.** `CURLOPT_FOLLOWLOCATION` is enabled by default and
-neither `CURLOPT_MAXREDIRS` nor `CURLOPT_REDIR_PROTOCOLS` is set. Disable following, or set both,
-when the target is not fully trusted:
+**Redirects are followed by default.** `follow_location` is `true` unless you set it. The cURL
+transport stops after 20 redirects (PHP's default for `CURLOPT_MAXREDIRS`), and libcurl only follows
+redirects to HTTP, HTTPS, FTP and FTPS; PHP's stream wrapper also stops after 20 redirects and only
+follows them to `http` and `https`. Redirects can still lead to hosts you did not intend to reach, so
+disable following when the target is not fully trusted, or lower the limit with `transport.curl`
+(`CURLOPT_MAXREDIRS`) or `transport.stream` (`max_redirects`):
 
 ```php
 $http = (new HttpFactory())->getHttp([
@@ -155,9 +180,18 @@ unreachable host. Prefer the cURL or stream transport.
 `php://` or `phar://` URL is opened rather than rejected. Check the scheme before calling if the
 URL is not your own.
 
-**`Http::get()` and friends take positional arguments.** There is no request object, so headers and
-timeouts are passed per call:
+**`Http::get()` and friends take positional arguments.** Headers and timeouts are passed per call:
 
 ```php
 $response = $http->get($url, ['Accept' => 'application/json'], 10);
+```
+
+To work with a request object instead, build any PSR-7 request and send it with the PSR-18 method
+`sendRequest()`:
+
+```php
+use Laminas\Diactoros\Request;
+
+$request  = (new Request($url, 'GET'))->withHeader('Accept', 'application/json');
+$response = $http->sendRequest($request);
 ```
