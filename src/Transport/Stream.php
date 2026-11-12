@@ -96,16 +96,17 @@ class Stream extends AbstractTransport
 
         // Add the proxy configuration if enabled
         if ($this->getOption('proxy.enabled', false)) {
-            $options['request_fulluri'] = true;
-
-            if ($this->getOption('proxy.host') && $this->getOption('proxy.port')) {
-                $options['proxy'] = $this->getOption('proxy.host') . ':' . (int)$this->getOption('proxy.port');
+            if (!$this->getOption('proxy.host') || !$this->getOption('proxy.port')) {
+                throw new \InvalidArgumentException('The proxy.host and proxy.port options are required when proxy.enabled is set.');
             }
 
-            // If authentication details are provided, add those as well
-            if ($this->getOption('proxy.user') && $this->getOption('proxy.password')) {
+            $options['request_fulluri'] = true;
+            $options['proxy']           = 'tcp://' . $this->getOption('proxy.host') . ':' . (int)$this->getOption('proxy.port');
+
+            // If authentication details are provided, add those as well; proxy.password is accepted as an alias of proxy.pass
+            if ($user = $this->getOption('proxy.user')) {
                 $headers['Proxy-Authorization'] = 'Basic ' . base64_encode(
-                    $this->getOption('proxy.user') . ':' . $this->getOption('proxy.password')
+                    $user . ':' . $this->getOption('proxy.pass', $this->getOption('proxy.password', ''))
                 );
             }
         }

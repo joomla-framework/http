@@ -152,10 +152,15 @@ class Curl extends AbstractTransport
 
         // Proxy configuration
         if ($this->getOption('proxy.enabled', false)) {
-            $options[CURLOPT_PROXY] = $this->getOption('proxy.host') . ':' . $this->getOption('proxy.port');
+            if (!$this->getOption('proxy.host') || !$this->getOption('proxy.port')) {
+                throw new \InvalidArgumentException('The proxy.host and proxy.port options are required when proxy.enabled is set.');
+            }
 
+            $options[\CURLOPT_PROXY] = $this->getOption('proxy.host') . ':' . (int) $this->getOption('proxy.port');
+
+            // proxy.password is accepted as an alias of proxy.pass
             if ($user = $this->getOption('proxy.user')) {
-                $options[CURLOPT_PROXYUSERPWD] = $user . ':' . $this->getOption('proxy.pass');
+                $options[\CURLOPT_PROXYUSERPWD] = $user . ':' . $this->getOption('proxy.pass', $this->getOption('proxy.password', ''));
             }
         }
 

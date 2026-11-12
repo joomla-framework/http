@@ -130,6 +130,15 @@ class Socket extends AbstractTransport
             $request[] = $value;
         }
 
+        // This transport cannot use a proxy, so make it visible that the request bypasses the configured one.
+        if ($this->getOption('proxy.enabled', false)) {
+            trigger_error(
+                'The socket transport does not support proxies; the request is sent without the configured proxy.'
+                . ' Use the cURL or stream transport.',
+                E_USER_WARNING
+            );
+        }
+
         // If we have data to send add it to the request payload.
         if (!empty($data)) {
             $request[] = null;
