@@ -14,7 +14,7 @@ namespace Joomla\Http;
  *
  * @since  1.0
  */
-class HttpFactory
+class HttpFactory implements HttpFactoryInterface
 {
     /**
      * Method to create an Http instance.
@@ -46,6 +46,23 @@ class HttpFactory
         }
 
         return new Http($options, $driver);
+    }
+
+    /**
+     * Method to create an Http client.
+     *
+     * @param   array|\ArrayAccess  $options   Client options array.
+     * @param   array|string|null   $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+     *
+     * @return  Http
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  \InvalidArgumentException
+     * @throws  \RuntimeException
+     */
+    public function createHttp(array|\ArrayAccess $options = [], array|string|null $adapters = null): Http
+    {
+        return $this->getHttp($options, $adapters);
     }
 
     /**

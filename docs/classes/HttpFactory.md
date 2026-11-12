@@ -81,3 +81,43 @@ use Joomla\Http\HttpFactory;
 $transports = (new HttpFactory)->getHttpTransports();
 ```
 
+### Depending on the factory
+
+`HttpFactory` implements `Joomla\Http\HttpFactoryInterface`, so code that creates clients can type against the
+interface and receive any factory, for example one configured in a DI container or a stub in tests. Its single
+method `createHttp()` takes the same arguments as `getHttp()`:
+
+```php
+/**
+ * @param   array|\ArrayAccess  $options   Client options array.
+ * @param   array|string|null   $adapters  Adapter (string) or queue of adapters (array) to use for communication.
+ *
+ * @throws  \InvalidArgumentException
+ * @throws  \RuntimeException
+ */
+public function createHttp(array|\ArrayAccess $options = [], array|string|null $adapters = null): Http
+```
+
+Classes that need a factory can implement `Joomla\Http\HttpFactoryAwareInterface` and use
+`Joomla\Http\HttpFactoryAwareTrait`, which provides `setHttpFactory()` and a protected `getHttpFactory()`. The getter
+throws an `UnexpectedValueException` if no factory was set.
+
+```php
+use Joomla\Http\HttpFactoryAwareInterface;
+use Joomla\Http\HttpFactoryAwareTrait;
+
+class GitHubClient implements HttpFactoryAwareInterface
+{
+    use HttpFactoryAwareTrait;
+
+    public function getRepository(string $name): array
+    {
+        $response = $this->getHttpFactory()->createHttp()->get('https://api.github.com/repos/' . $name);
+
+        return json_decode((string) $response->getBody(), true);
+    }
+}
+
+$client = new GitHubClient();
+$client->setHttpFactory(new \Joomla\Http\HttpFactory());
+```
