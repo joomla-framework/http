@@ -155,15 +155,22 @@ class SocketRedirectTest extends TestCase
 
         // The other origin is the same server under another name.
         $stub    = new Uri($this->stubDirectory);
-        $aliases = ['localhost' => '127.0.0.1', '127.0.0.1' => 'localhost'];
-        $host    = $aliases[$stub->getHost()] ?? null;
+        $aliases = ['localhost' => ['127.0.0.1', '[::1]'], '127.0.0.1' => ['localhost'], '[::1]' => ['localhost']];
         $port    = $stub->getPort() ?: 80;
+        $host    = null;
 
-        if ($host === null || !($socket = @fsockopen($host, $port, $errno, $error, 2))) {
-            $this->markTestSkipped('The stub is not reachable under a second host name.');
+        foreach ($aliases[$stub->getHost()] ?? [] as $alias) {
+            if ($socket = @fsockopen($alias, $port, $errno, $error, 2)) {
+                fclose($socket);
+                $host = $alias;
+
+                break;
+            }
         }
 
-        fclose($socket);
+        if ($host === null) {
+            $this->markTestSkipped('The stub is not reachable under a second host name.');
+        }
 
         $other = new Uri($this->stubDirectory);
         $other->setHost($host);
