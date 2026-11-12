@@ -32,7 +32,18 @@ class Socket extends AbstractTransport
     protected $connections;
 
     /**
+     * The maximum number of redirects to follow.
+     *
+     * @var    integer
+     * @since  __DEPLOY_VERSION__
+     */
+    private const MAX_REDIRECTS = 20;
+
+    /**
      * Send a request to the server and return a Response object with the response.
+     *
+     * Redirects are followed unless the `follow_location` option is false. Credentials and cookies are only sent
+     * to the origin (scheme, host and port) of the original request.
      *
      * @param   string        $method     The HTTP method for sending the request.
      * @param   UriInterface  $uri        The URI to the resource to request.
@@ -47,6 +58,165 @@ class Socket extends AbstractTransport
      * @throws  \RuntimeException
      */
     public function request($method, UriInterface $uri, $data = null, array $headers = [], $timeout = null, $userAgent = null)
+    {
+        $sendCredentials = true;
+
+        for ($redirects = 0;; $redirects++) {
+            $response = $this->sendRequest($method, $uri, $data, $headers, $timeout, $userAgent, $sendCredentials);
+            $status   = $response->getStatusCode();
+
+            if (
+                !$this->getOption('follow_location', true)
+                || !\in_array($status, [301, 302, 303, 307, 308], true)
+                || !$response->hasHeader('Location')
+            ) {
+                return $response;
+            }
+
+            if ($redirects >= self::MAX_REDIRECTS) {
+                throw new \RuntimeException(sprintf('Maximum (%d) redirects followed', self::MAX_REDIRECTS));
+            }
+
+            $location = $this->resolveLocation($uri, $response->getHeaderLine('Location'));
+
+            // Like browsers and cURL, repeat a POST as GET after 301 and 302, and anything but HEAD as GET after 303.
+            if (($status === 303 && strtoupper($method) !== 'HEAD') || (\in_array($status, [301, 302], true) && strtoupper($method) === 'POST')) {
+                $method  = 'GET';
+                $data    = null;
+                $headers = $this->withoutHeaders($headers, ['Content-Type', 'Content-Length']);
+            }
+
+            // Do not send credentials, cookies or the Host header to another origin.
+            if (!$this->isSameOrigin($uri, $location)) {
+                $sendCredentials = false;
+                $headers         = $this->withoutHeaders($headers, ['Authorization', 'Cookie', 'Host']);
+            }
+
+            $uri = $location;
+        }
+    }
+
+    /**
+     * Resolve the Location header of a redirect against the URI of the request.
+     *
+     * @param   UriInterface  $base      The URI of the request that was redirected.
+     * @param   string        $location  The value of the Location header.
+     *
+     * @return  Uri
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function resolveLocation(UriInterface $base, string $location): Uri
+    {
+        // An absolute URI
+        if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $location)) {
+            return new Uri($location);
+        }
+
+        // A network-path reference
+        if (str_starts_with($location, '//')) {
+            return new Uri($base->getScheme() . ':' . $location);
+        }
+
+        $location = explode('#', $location, 2)[0];
+        $parts    = explode('?', $location, 2);
+        $path     = $parts[0];
+        $query    = $parts[1] ?? null;
+        $basePath = (string) $base->getPath() !== '' ? (string) $base->getPath() : '/';
+
+        if ($path === '') {
+            $path  = $basePath;
+            $query = $query ?? (string) $base->getQuery();
+        } elseif ($path[0] !== '/') {
+            $path = substr($basePath, 0, (int) strrpos($basePath, '/') + 1) . $path;
+        }
+
+        // Remove dot segments
+        $segments = [];
+
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '..') {
+                if (\count($segments) > 1) {
+                    array_pop($segments);
+                }
+            } elseif ($segment !== '.') {
+                $segments[] = $segment;
+            }
+        }
+
+        $path = implode('/', $segments);
+
+        if (\in_array(basename($parts[0]), ['.', '..'], true)) {
+            $path .= '/';
+        }
+
+        return new Uri(
+            $base->toString(['scheme', 'user', 'pass', 'host', 'port']) . ($path !== '' ? $path : '/')
+            . ($query !== null && $query !== '' ? '?' . $query : '')
+        );
+    }
+
+    /**
+     * Check whether two URIs have the same scheme, host and port.
+     *
+     * @param   UriInterface  $a  The first URI.
+     * @param   UriInterface  $b  The second URI.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function isSameOrigin(UriInterface $a, UriInterface $b): bool
+    {
+        $port = static function (UriInterface $uri): int {
+            return (int) ($uri->getPort() ?: (strtolower((string) $uri->getScheme()) === 'https' ? 443 : 80));
+        };
+
+        return strtolower((string) $a->getScheme()) === strtolower((string) $b->getScheme())
+            && strtolower((string) $a->getHost()) === strtolower((string) $b->getHost())
+            && $port($a) === $port($b);
+    }
+
+    /**
+     * Remove headers, ignoring the case of their names.
+     *
+     * @param   array     $headers  The request headers.
+     * @param   string[]  $names    The names of the headers to remove.
+     *
+     * @return  array
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function withoutHeaders(array $headers, array $names): array
+    {
+        $names = array_map('strtolower', $names);
+
+        foreach (array_keys($headers) as $key) {
+            if (\in_array(strtolower((string) $key), $names, true)) {
+                unset($headers[$key]);
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Send a single request to the server and return a Response object with the response.
+     *
+     * @param   string        $method           The HTTP method for sending the request.
+     * @param   UriInterface  $uri              The URI to the resource to request.
+     * @param   mixed         $data             Either an associative array or a string to be sent with the request.
+     * @param   array         $headers          An array of request headers to send with the request.
+     * @param   ?integer      $timeout          Read timeout in seconds.
+     * @param   ?string       $userAgent        The optional user agent string to send with the request.
+     * @param   boolean       $sendCredentials  Whether to send the credentials from the userauth and passwordauth options.
+     *
+     * @return  Response
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  \RuntimeException
+     */
+    private function sendRequest($method, UriInterface $uri, $data, array $headers, $timeout, $userAgent, bool $sendCredentials)
     {
         $connection = $this->connect($uri, $timeout);
 
@@ -121,7 +291,7 @@ class Socket extends AbstractTransport
         }
 
         // Authentication, if needed
-        if ($this->getOption('userauth') && $this->getOption('passwordauth')) {
+        if ($sendCredentials && $this->getOption('userauth') && $this->getOption('passwordauth')) {
             $request[] = 'Authorization: Basic ' . base64_encode($this->getOption('userauth') . ':' . $this->getOption('passwordauth'));
         }
 
@@ -146,14 +316,7 @@ class Socket extends AbstractTransport
             $content .= fgets($connection, 4096);
         }
 
-        $content = $this->getResponse($content);
-
-        // Follow Http redirects
-        if ($content->getStatusCode() >= 301 && $content->getStatusCode() < 400 && $content->hasHeader('Location')) {
-            return $this->request($method, new Uri($content->getHeaderLine('Location')), $data, $headers, $timeout, $userAgent);
-        }
-
-        return $content;
+        return $this->getResponse($content);
     }
 
     /**

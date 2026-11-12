@@ -110,5 +110,11 @@ with `getOption($key, $default)` and are transport-specific; the commonly used o
 | `stream.certpath` | Stream | CA bundle file or directory |
 | `protocolVersion` | Curl | `1.0`, `1.1` or `2.0` |
 
+The socket transport follows redirects itself: it honours `follow_location`, resolves a relative
+`Location` against the request URI and gives up after 20 redirects with a `RuntimeException`. A
+`303`, and a `301` or `302` answering a `POST`, is repeated as a `GET` without a body. When a
+redirect leads to another scheme, host or port, the `Authorization`, `Cookie` and `Host` headers
+and the `userauth`/`passwordauth` credentials are not sent there.
+
 See [the overview](../overview.md#things-to-know-before-you-build-on-this) for the caveats around
 `transport.curl` and redirect handling.
