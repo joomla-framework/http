@@ -275,8 +275,11 @@ class Http implements ClientInterface
         if (isset($this->options['headers'])) {
             $temp = (array) $this->options['headers'];
 
+            // Header names are case-insensitive, so a request header overrides an option header in any case.
+            $names = array_map('strtolower', array_map('strval', array_keys($headers)));
+
             foreach ($temp as $key => $val) {
-                if (!isset($headers[$key])) {
+                if (!\in_array(strtolower((string) $key), $names, true)) {
                     $headers[$key] = $val;
                 }
             }
