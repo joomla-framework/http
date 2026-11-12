@@ -9,6 +9,8 @@
 
 namespace Joomla\Http;
 
+use Joomla\Http\Exception\InvalidResponseCodeException;
+
 /**
  * Abstract transport class.
  *
@@ -88,5 +90,24 @@ abstract class AbstractTransport implements TransportInterface
         }
 
         return $verifiedHeaders;
+    }
+
+    /**
+     * Get the status code from the status line of a response.
+     *
+     * @param   string|null  $statusLine  The status line, such as "HTTP/1.1 200 OK".
+     *
+     * @return  integer
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  InvalidResponseCodeException
+     */
+    protected function parseStatusCode(?string $statusLine): int
+    {
+        if ($statusLine === null || !preg_match('#^HTTP/\d(?:\.\d)?\s+(\d{3})(?:\s|$)#i', $statusLine, $matches)) {
+            throw new InvalidResponseCodeException('No HTTP response code found.');
+        }
+
+        return (int) $matches[1];
     }
 }
