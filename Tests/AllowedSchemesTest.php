@@ -80,7 +80,7 @@ class AllowedSchemesTest extends TestCase
         }
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Protocol "file" disabled');
+        $this->expectExceptionMessageMatches('/Protocol "file" (not supported or )?disabled/');
 
         (new Curl([]))->request('GET', new Uri('file:///etc/hostname'));
     }
