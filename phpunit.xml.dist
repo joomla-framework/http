@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+	The transport tests are integration tests: they need Tests/stubs/jhttp_stub.php served over
+	HTTP. Point JTEST_HTTP_STUB at it; the value below is only a default, and an environment
+	variable of the same name takes precedence:
+
+		JTEST_HTTP_STUB=http://localhost/framework-joomla/http/Tests/stubs/jhttp_stub.php \
+			vendor/bin/phpunit
+
+	Without a reachable stub those tests skip rather than fail, and coverage drops from ~79% to
+	~22%, so it is worth setting up.
+
+	Note that Tests/stubs/.htaccess forwards the Authorization header, which PHP does not receive
+	under CGI/FastCGI otherwise. Serving the stub from a server that ignores .htaccess makes
+	testRequestCredentials fail.
+-->
 <phpunit bootstrap="vendor/autoload.php" colors="false">
 	<php>
-		<const name="JTEST_HTTP_STUB" value="http://localhost:8080/jhttp_stub.php" />
+		<env name="JTEST_HTTP_STUB" value="http://localhost:8080/jhttp_stub.php" />
 	</php>
 	<testsuites>
 		<testsuite name="Unit">
