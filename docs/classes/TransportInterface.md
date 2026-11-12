@@ -35,7 +35,7 @@ directly.
 |---|---|---|
 | `Transport\Curl` | `ext-curl` loaded | The default when available |
 | `Transport\Stream` | `allow_url_fopen` enabled | Configurable TLS via a stream context |
-| `Transport\Socket` | `fsockopen()` exists | Cannot be configured for TLS — see below |
+| `Transport\Socket` | `fsockopen()` exists | **Deprecated**, will be removed in 5.0; creating it triggers a deprecation notice. Cannot be configured for TLS — see below |
 
 `HttpFactory` picks one for you:
 
