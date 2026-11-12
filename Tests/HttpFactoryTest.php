@@ -130,8 +130,8 @@ class HttpFactoryTest extends TestCase
      */
     public function testGetHttpTransports()
     {
-        $transports = ['Stream', 'Socket', 'Curl'];
-        sort($transports);
+        // cURL first, the socket transport only as the last resort
+        $transports = ['Curl', 'Stream', 'Socket'];
 
         $this->assertEquals(
             $transports,

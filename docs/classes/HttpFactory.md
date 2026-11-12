@@ -64,6 +64,8 @@ interface.
 ### Retrieving the available TransportInterface implementations
 
 The `getHttpTransports()` method can be used to retrieve a list of supported [TransportInterface](TransportInterface.md) objects from the factory. 
+The list is in order of preference: `Curl`, `Stream`, then `Socket` (and any other transport found in the folder after
+them), which is also the order in which `getHttp()` and `getAvailableDriver()` try them when no adapter is given.
 
 ```php
 /**

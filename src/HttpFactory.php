@@ -117,14 +117,9 @@ class HttpFactory
         // Keep alphabetical order across all environments
         sort($names);
 
-        // If curl is available set it to the first position
-        $key = array_search('Curl', $names);
+        // Prefer cURL, then streams; the socket transport is the weakest and only used as the last resort
+        $preferred = array_values(array_intersect(['Curl', 'Stream', 'Socket'], $names));
 
-        if ($key) {
-            unset($names[$key]);
-            array_unshift($names, 'Curl');
-        }
-
-        return $names;
+        return array_merge($preferred, array_values(array_diff($names, $preferred)));
     }
 }
