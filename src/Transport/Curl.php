@@ -67,7 +67,7 @@ class Curl extends AbstractTransport
         }
 
         // Don't wait for body when $method is HEAD
-        $options[\CURLOPT_NOBODY] = ($method === 'HEAD');
+        $options[\CURLOPT_NOBODY] = (strtoupper($method) === 'HEAD');
 
         // If data exists let's encode it and make sure our Content-type header is set.
         if (isset($data)) {
