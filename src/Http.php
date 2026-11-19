@@ -287,7 +287,8 @@ class Http implements ClientInterface
             $timeout = $this->options['timeout'];
         }
 
-        $userAgent = isset($this->options['userAgent']) ? $this->options['userAgent'] : null;
+        // Send the default user agent unless one is configured; the options are not changed.
+        $userAgent = $this->options['userAgent'] ?? 'Mozilla/5.0 Joomla!/Framework';
 
         // Convert to a Uri object if we were given a string
         if (\is_string($url)) {

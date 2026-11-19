@@ -33,6 +33,10 @@ Note that an `InvalidArgumentException` is thrown if the `$options` argument is 
 
 Note that a `RuntimeException` is thrown if no `Joomla\Http\TransportInterface` objects are available for use.
 
+Requests are sent with the user agent `Mozilla/5.0 Joomla!/Framework` unless the `userAgent` option sets another
+one. `Http` applies this default itself, so it also holds for a client created with `new Http()`, and the options
+array or object you pass in is not modified.
+
 ### Retrieving a Joomla\Http\TransportInterface object
 
 The `getAvailableDriver()` method can be used to create [TransportInterface](TransportInterface.md) objects from the factory. 
