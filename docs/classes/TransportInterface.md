@@ -99,6 +99,10 @@ recorded requests are available for assertions.
 
 ## Options
 
+The stream transport creates its own stream context for each request, so options set on PHP's default
+context with `stream_context_set_default()` (a proxy, extra headers, …) are not used. Pass them with the
+`transport.stream` option, which is merged into the context's `http` options, or with the options below.
+
 `AbstractTransport::__construct($options = [])` accepts an array or `ArrayAccess`. Options are read
 with `getOption($key, $default)` and are transport-specific; the commonly used ones are:
 

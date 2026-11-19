@@ -139,15 +139,6 @@ class Stream extends AbstractTransport
             $options[$key] = $value;
         }
 
-        // Get the current context options.
-        $contextOptions = stream_context_get_options(stream_context_get_default());
-
-        // Add our options to the currently defined options, if any.
-        $contextOptions['http'] = isset($contextOptions['http']) ? array_merge(
-            $contextOptions['http'],
-            $options
-        ) : $options;
-
         // Create the stream context for the request.
         $streamOptions = [
             'http' => $options,
