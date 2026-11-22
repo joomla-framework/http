@@ -182,16 +182,8 @@ class Socket extends AbstractTransport
         // Set the body for the response.
         $body = empty($response[1]) ? '' : $response[1];
 
-        // Get the response code from the first offset of the response headers.
-        preg_match('/[0-9]{3}/', array_shift($headers), $matches);
-        $code = $matches[0];
-
-        if (!is_numeric($code)) {
-            // No valid response code was detected.
-            throw new InvalidResponseCodeException('No HTTP response code found.');
-        }
-
-        $statusCode      = (int) $code;
+        // Get the response code from the status line, the first offset of the response headers.
+        $statusCode      = $this->parseStatusCode(array_shift($headers));
         $verifiedHeaders = $this->processHeaders($headers);
 
         $streamInterface = new StreamResponse('php://memory', 'rw');

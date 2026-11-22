@@ -29,6 +29,11 @@ interface TransportInterface
 accessors, so a custom transport normally extends it rather than implementing the interface
 directly.
 
+Its `parseStatusCode()` reads the code from a status line such as `HTTP/1.1 404 Not Found` and throws
+`Joomla\Http\Exception\InvalidResponseCodeException` when the response does not start with one. The
+bundled transports throw that exception for such responses instead of guessing a code from the first
+three digits they find.
+
 ## The bundled transports
 
 | Class | `isSupported()` checks | Notes |
