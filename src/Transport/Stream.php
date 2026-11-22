@@ -13,7 +13,6 @@ use Composer\CaBundle\CaBundle;
 use Joomla\Http\AbstractTransport;
 use Joomla\Http\Exception\InvalidResponseCodeException;
 use Joomla\Http\Response;
-use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
 use Laminas\Diactoros\Stream as StreamResponse;
 
@@ -128,10 +127,13 @@ class Stream extends AbstractTransport
             $options['header'] = trim($headerString, "\r\n");
         }
 
-        // Authentication, if needed
-        if ($uri instanceof Uri && $this->getOption('userauth') && $this->getOption('passwordauth')) {
-            $uri->setUser($this->getOption('userauth'));
-            $uri->setPass($this->getOption('passwordauth'));
+        // Authentication, if needed. Sent as a header, so the credentials do not end up in the caller's URI object.
+        if (
+            $this->getOption('userauth') && $this->getOption('passwordauth')
+            && !isset(array_change_key_case($headers)['authorization'])
+        ) {
+            $authorization     = 'Authorization: Basic ' . base64_encode($this->getOption('userauth') . ':' . $this->getOption('passwordauth'));
+            $options['header'] = isset($options['header']) ? $options['header'] . "\r\n" . $authorization : $authorization;
         }
 
         // Set any custom transport options
