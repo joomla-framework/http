@@ -23,8 +23,7 @@ $response->http_accept          = getVar($_SERVER, 'HTTP_ACCEPT');
 $response->http_accept_charset  = getVar($_SERVER, 'HTTP_ACCEPT_CHARSET');
 $response->http_accept_encoding = getVar($_SERVER, 'HTTP_ACCEPT_ENCODING');
 
-$response->username = getVar($_SERVER, 'PHP_AUTH_USER');
-$response->password = getVar($_SERVER, 'PHP_AUTH_PW');
+list($response->username, $response->password) = basicCredentials();
 
 $response->http_referer = getVar($_SERVER, 'HTTP_REFERER');
 
@@ -47,4 +46,39 @@ echo json_encode($response);
 function getVar($array, $key, $default = '')
 {
     return $array[$key] ?? $default;
+}
+
+/**
+ * Reads the HTTP basic auth credentials.
+ *
+ * PHP only fills PHP_AUTH_USER/PHP_AUTH_PW when it runs as an Apache module. Under FastCGI,
+ * CGI or php-fpm the Authorization header arrives verbatim instead - if the server forwards it
+ * at all - so fall back to decoding it by hand.
+ *
+ * @return  array  A [username, password] pair; both empty when no credentials were sent.
+ */
+function basicCredentials()
+{
+    if (isset($_SERVER['PHP_AUTH_USER'])) {
+        return [$_SERVER['PHP_AUTH_USER'], getVar($_SERVER, 'PHP_AUTH_PW')];
+    }
+
+    $header = getVar($_SERVER, 'HTTP_AUTHORIZATION', getVar($_SERVER, 'REDIRECT_HTTP_AUTHORIZATION'));
+
+    if ($header === '' && function_exists('apache_request_headers')) {
+        $headers = array_change_key_case(apache_request_headers(), CASE_LOWER);
+        $header  = $headers['authorization'] ?? '';
+    }
+
+    if (stripos($header, 'basic ') !== 0) {
+        return ['', ''];
+    }
+
+    $decoded = base64_decode(substr($header, 6), true);
+
+    if ($decoded === false || strpos($decoded, ':') === false) {
+        return ['', ''];
+    }
+
+    return explode(':', $decoded, 2);
 }

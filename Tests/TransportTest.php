@@ -59,6 +59,49 @@ class TransportTest extends TestCase
         }
 
         $this->stubUrl = \defined('JTEST_HTTP_STUB') ? JTEST_HTTP_STUB : getenv('JTEST_HTTP_STUB');
+
+        /*
+         * These are integration tests: they need a web server serving Tests/stubs/jhttp_stub.php
+         * at the configured URL. phpunit.xml.dist points at a default location, so a fresh
+         * checkout would otherwise report a wall of assertion failures rather than the actual
+         * problem. Skip instead when the stub cannot be reached.
+         */
+        if (!self::stubIsReachable($this->stubUrl)) {
+            $this->markTestSkipped(
+                sprintf(
+                    'The Transport test stub at "%s" is not reachable. Serve Tests/stubs/ from a web'
+                    . ' server and point JTEST_HTTP_STUB at jhttp_stub.php to run these tests.',
+                    $this->stubUrl
+                )
+            );
+        }
+    }
+
+    /**
+     * Check whether the configured stub answers, so the suite can skip rather than fail.
+     *
+     * The result is cached for the process; the stub either runs for the whole suite or not at all.
+     *
+     * @param   string  $url  The stub URL.
+     *
+     * @return  boolean
+     */
+    private static function stubIsReachable(string $url): bool
+    {
+        static $reachable = null;
+
+        if ($reachable !== null) {
+            return $reachable;
+        }
+
+        $context = stream_context_create([
+            'http' => ['method' => 'HEAD', 'timeout' => 2, 'ignore_errors' => true],
+        ]);
+
+        $headers = @get_headers($url, false, $context);
+
+        return $reachable = \is_array($headers)
+            && preg_match('#\s(2|3)\d\d\s#', $headers[0] ?? '') === 1;
     }
 
     /**
