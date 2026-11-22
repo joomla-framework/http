@@ -72,19 +72,19 @@ class Socket extends AbstractTransport
                 $data = http_build_query($data);
             }
 
-            if (!isset($headers['Content-Type'])) {
+            if ($this->getHeaderValue($headers, 'Content-Type') === null) {
                 $headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
             }
 
             // Add the relevant headers.
-            $headers['Content-Length'] = \strlen($data);
+            $headers = $this->setHeader($headers, 'Content-Length', \strlen($data));
         }
 
         // Configure protocol version, use transport's default if not set otherwise.
         $protocolVersion = $this->getOption('protocolVersion', '1.0');
 
         // HTTP/1.1 streams using the socket wrapper require a Connection: close header
-        if ($protocolVersion == '1.1' && !isset($headers['Connection'])) {
+        if ($protocolVersion == '1.1' && $this->getHeaderValue($headers, 'Connection') === null) {
             $headers['Connection'] = 'close';
         }
 
@@ -92,7 +92,7 @@ class Socket extends AbstractTransport
         $request   = [];
         $request[] = strtoupper($method) . ' ' . ((empty($path)) ? '/' : $path) . ' HTTP/' . $protocolVersion;
 
-        if (!isset($headers['Host'])) {
+        if ($this->getHeaderValue($headers, 'Host') === null) {
             $request[] = 'Host: ' . $uri->getHost();
         }
 
