@@ -9,8 +9,10 @@
 
 namespace Joomla\Http;
 
+use Joomla\Http\Exception\NetworkException;
 use Joomla\Uri\Uri;
 use Joomla\Uri\UriInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -242,17 +244,26 @@ class Http implements ClientInterface
      * @return  ResponseInterface|Response
      *
      * @since   2.0.0
+     * @throws  ClientExceptionInterface
+     * @throws  NetworkException  If the request could not be completed, for example because the connection failed.
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $data = $request->getBody()->getContents();
+        // Casting the stream rewinds it, so a body that was already read is still sent completely.
+        $data = (string) $request->getBody();
 
-        return $this->makeTransportRequest(
-            $request->getMethod(),
-            new Uri((string) $request->getUri()),
-            empty($data) ? null : $data,
-            $request->getHeaders()
-        );
+        try {
+            return $this->makeTransportRequest(
+                $request->getMethod(),
+                new Uri((string) $request->getUri()),
+                $data === '' ? null : $data,
+                $request->getHeaders()
+            );
+        } catch (ClientExceptionInterface $e) {
+            throw $e;
+        } catch (\RuntimeException $e) {
+            throw new NetworkException($request, $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
