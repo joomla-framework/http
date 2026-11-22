@@ -215,6 +215,15 @@ class Stream extends AbstractTransport
             $headers = $metadata['wrapper_data'];
         }
 
+        // After followed redirects the headers of every response are listed, so keep only those of the last one.
+        for ($i = \count($headers) - 1; $i > 0; $i--) {
+            if (preg_match('#^HTTP/\d#i', $headers[$i])) {
+                $headers = \array_slice($headers, $i);
+
+                break;
+            }
+        }
+
         return $this->getResponse($headers, $content);
     }
 

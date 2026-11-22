@@ -77,8 +77,18 @@ abstract class AbstractTransport implements TransportInterface
 
         // Add the response headers to the response object.
         foreach ($headers as $header) {
-            $pos     = strpos($header, ':');
+            $pos = strpos($header, ':');
+
+            // Skip lines that are not a header, such as a further status line.
+            if ($pos === false) {
+                continue;
+            }
+
             $keyName = trim(substr($header, 0, $pos));
+
+            if ($keyName === '') {
+                continue;
+            }
 
             if (!isset($verifiedHeaders[$keyName])) {
                 $verifiedHeaders[$keyName] = [];
