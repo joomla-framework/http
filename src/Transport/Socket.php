@@ -19,7 +19,8 @@ use Laminas\Diactoros\Stream as StreamResponse;
 /**
  * HTTP transport class for using sockets directly.
  *
- * @since  1.0
+ * @since       1.0
+ * @deprecated  5.0 Use the Curl or Stream transport instead; this transport will be removed.
  */
 class Socket extends AbstractTransport
 {
@@ -275,6 +276,26 @@ class Socket extends AbstractTransport
         stream_set_timeout($this->connections[$key], (int) $timeout);
 
         return $this->connections[$key];
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param   array|\ArrayAccess  $options  Client options array.
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  \RuntimeException
+     */
+    public function __construct($options = [])
+    {
+        trigger_deprecation(
+            'joomla/http',
+            '__DEPLOY_VERSION__',
+            'The %s transport is deprecated and will be removed in 5.0, use the Curl or Stream transport instead.',
+            self::class
+        );
+
+        parent::__construct($options);
     }
 
     /**
