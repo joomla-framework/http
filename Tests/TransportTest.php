@@ -7,12 +7,16 @@
 
 namespace Joomla\Http\Tests;
 
+use Joomla\Http\AbstractTransport;
 use Joomla\Http\Transport\Curl;
 use Joomla\Http\Transport\Socket;
 use Joomla\Http\Transport\Stream;
 use Joomla\Http\TransportInterface;
 use Joomla\Uri\Uri;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -24,6 +28,10 @@ use function sprintf;
  *
  * @since  1.0
  */
+#[CoversClass(Curl::class)]
+#[CoversClass(Socket::class)]
+#[CoversClass(Stream::class)]
+#[UsesClass(AbstractTransport::class)]
 class TransportTest extends TestCase
 {
     /**
@@ -88,16 +96,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can only be created with an appropriate data type for the options
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can only be created with an appropriate data type for the options')]
     public function testConstructorWithBadDataObject(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -111,16 +113,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can make a GET request
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can make a GET request')]
     public function testRequestGet(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -146,17 +142,13 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A stream transport can make a GET request when blocking mode is enabled
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      *
      *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
      * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
      */
     #[DataProvider('relevantOnlyForStreamTransportProvider')]
+    #[TestDox('A stream transport can make a GET request when blocking mode is enabled')]
     public function testRequestGetWhenBlockingModeIsEnabled(string $transportClass)
     {
         if (!$transportClass::isSupported() || $transportClass != Stream::class) {
@@ -182,17 +174,13 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A stream transport can make a GET request when blocking mode is disabled
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      *
      *  Blocking mode is only relevant for OPTION,HEAD,GET request since it only affects reading from the stream
      * @see           https://www.php.net/manual/en/function.stream-set-blocking.php
      */
     #[DataProvider('relevantOnlyForStreamTransportProvider')]
+    #[TestDox('A stream transport can make a GET request when blocking mode is disabled')]
     public function testRequestGetWhenBlockingModeIsDisabled(string $transportClass)
     {
         if (!$transportClass::isSupported() || $transportClass != Stream::class) {
@@ -219,16 +207,10 @@ class TransportTest extends TestCase
 
 
     /**
-     * @testdox       A transport fails to make a GET request to an invalid domain
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport fails to make a GET request to an invalid domain')]
     public function testBadDomainRequestGet(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -244,16 +226,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport fails to make a GET request to an invalid URL
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport fails to make a GET request to an invalid URL')]
     public function testRequestGet404(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -272,16 +248,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can make a GET request
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can make a GET request')]
     public function testRequestPut(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -307,16 +277,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can make a GET request with basic authentication
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can make a GET request with basic authentication')]
     public function testRequestCredentials(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -351,16 +315,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can make a POST request with an array as the request data
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can make a POST request with an array as the request data')]
     public function testRequestPost(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
@@ -391,16 +349,10 @@ class TransportTest extends TestCase
     }
 
     /**
-     * @testdox       A transport can make a POST request with a scalar value as the request data
-     *
      * @param   string  $transportClass  The transport class to test
-     *
-     * @covers        \Joomla\Http\Transport\Curl
-     * @covers        \Joomla\Http\Transport\Socket
-     * @covers        \Joomla\Http\Transport\Stream
-     * @uses          \Joomla\Http\AbstractTransport
      */
     #[DataProvider('transportProvider')]
+    #[TestDox('A transport can make a POST request with a scalar value as the request data')]
     public function testRequestPostScalar(string $transportClass)
     {
         if (!$transportClass::isSupported()) {
