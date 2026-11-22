@@ -28,6 +28,8 @@ $response->password = getVar($_SERVER, 'PHP_AUTH_PW');
 
 $response->http_referer = getVar($_SERVER, 'HTTP_REFERER');
 
+$response->headers = function_exists('getallheaders') ? getallheaders() : [];
+
 $response->get     = $_GET;
 $response->post    = $_POST;
 $response->files   = $_FILES;

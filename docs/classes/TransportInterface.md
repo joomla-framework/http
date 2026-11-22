@@ -49,6 +49,7 @@ $http = (new HttpFactory())->getHttp([], ['curl', 'stream']);    // first suppor
 
 > Prefer `curl` or `stream`. `Socket` connects with `fsockopen()`, which accepts no stream context,
 > so no CA bundle, minimum TLS version or client certificate can be supplied for it.
+> It also cannot use a proxy: with `proxy.enabled` set it raises an `E_USER_WARNING` and connects directly.
 
 ## Writing a transport
 
@@ -108,6 +109,9 @@ with `getOption($key, $default)` and are transport-specific; the commonly used o
 | `follow_location` | Curl | Follow redirects, default `true` |
 | `transport.curl` | Curl | Raw `CURLOPT_*` overrides, applied last |
 | `stream.certpath` | Stream | CA bundle file or directory |
+| `proxy.enabled` | Curl, Stream | Send requests through an HTTP proxy; `proxy.host` and `proxy.port` are then required |
+| `proxy.host` / `proxy.port` | Curl, Stream | The proxy; an `InvalidArgumentException` is thrown if either is missing |
+| `proxy.user` / `proxy.pass` | Curl, Stream | Basic credentials for the proxy; `proxy.password` is accepted for `proxy.pass` |
 | `protocolVersion` | Curl | `1.0`, `1.1` or `2.0` |
 
 See [the overview](../overview.md#things-to-know-before-you-build-on-this) for the caveats around
