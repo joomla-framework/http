@@ -69,7 +69,7 @@ class Socket extends AbstractTransport
         if (!empty($data)) {
             // If the data is not a scalar value encode it to be sent with the request.
             if (!is_scalar($data)) {
-                $data = http_build_query($data);
+                $data = http_build_query($data, '', '&');
             }
 
             if (!isset($headers['Content-Type'])) {

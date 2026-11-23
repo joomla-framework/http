@@ -59,7 +59,7 @@ class Stream extends AbstractTransport
                 $options['content'] = $data;
             } else {
                 // Otherwise we need to encode the value first.
-                $options['content'] = http_build_query($data);
+                $options['content'] = http_build_query($data, '', '&');
             }
 
             if (!isset($headers['Content-Type'])) {

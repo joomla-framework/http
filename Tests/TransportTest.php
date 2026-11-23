@@ -391,6 +391,42 @@ class TransportTest extends TestCase
     }
 
     /**
+     * @testdox       A transport encodes POST array data with "&" whatever arg_separator.output is set to
+     *
+     * @param   string  $transportClass  The transport class to test
+     *
+     * @covers        \Joomla\Http\Transport\Curl
+     * @covers        \Joomla\Http\Transport\Socket
+     * @covers        \Joomla\Http\Transport\Stream
+     * @uses          \Joomla\Http\AbstractTransport
+     */
+    #[DataProvider('transportProvider')]
+    public function testRequestPostIgnoresArgSeparatorOutput(string $transportClass)
+    {
+        if (!$transportClass::isSupported()) {
+            $this->markTestSkipped(sprintf('The "%s" adapter is not supported in this environment.', $transportClass));
+        }
+
+        $separator = ini_set('arg_separator.output', '&amp;');
+
+        try {
+            /** @var TransportInterface $transport */
+            $transport = new $transportClass($this->options);
+
+            $response = $transport->request('POST', new Uri($this->stubUrl . '?test=okay'), ['key' => 'value', 'other' => 'second']);
+        } finally {
+            ini_set('arg_separator.output', $separator);
+        }
+
+        $body = json_decode((string)$response->getBody(), true);
+
+        $this->assertSame(
+            ['key' => 'value', 'other' => 'second'],
+            $body['post']
+        );
+    }
+
+    /**
      * @testdox       A transport can make a POST request with a scalar value as the request data
      *
      * @param   string  $transportClass  The transport class to test
